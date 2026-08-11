@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AquaOS — Operations CRM · DevX</title>
+<style>
+:root{--ink:#0b172a;--muted:#69788e;--line:#e7edf4;--bg:#f3f7fb;--nav:#07182a;--emerald:#159050;--emerald2:#3FB577;--aqua:#14b8a6;--cyan:#0ea5e9;--amber:#d97706;--red:#dc2626;--forest:#0C6236}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:250px 1fr}
+.sidebar{background:linear-gradient(180deg,var(--nav),#0a2130);color:#fff;padding:22px 15px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:11px;padding:0 6px 22px}
+.bm{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,var(--emerald2),#12a2c9);display:grid;place-items:center}
+.bm svg{width:22px;height:22px;stroke:#fff}.brand b{font-size:16px}.brand small{display:block;color:#9db2c9;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+.navbtn{width:100%;border:0;background:transparent;color:#a9bad0;border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:11px;text-align:left;margin:2px 0;font-weight:600;font-size:13px}
+.navbtn svg{width:18px;height:18px;stroke:currentColor}
+.navbtn:hover{background:#102a42;color:#fff}.navbtn.active{background:linear-gradient(90deg,#123452,#0e2a41);color:#fff;box-shadow:inset 3px 0 0 var(--emerald2)}
+.main{min-width:0}
+.topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:16px;margin:0}.topbar p{margin:3px 0 0;font-size:11px;color:var(--muted)}
+.avatar{display:flex;align-items:center;gap:9px}.avatar .pic{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#0b2540,#1d4e6c);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
+.content{padding:24px 26px 50px;max-width:1400px}
+.page{display:none}.page.active{display:block}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
+.hero h2{margin:4px 0 4px;font-size:24px;letter-spacing:-.02em}.hero p{margin:0;color:var(--muted);font-size:12.5px}
+.eyebrow{color:var(--emerald);font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.13em}
+.primary{background:linear-gradient(135deg,var(--emerald),#0f9f97);color:#fff;border:0;border-radius:11px;padding:11px 15px;font-weight:800;font-size:12.5px;display:inline-flex;align-items:center;gap:8px}
+.primary svg{width:16px;height:16px;stroke:#fff}
+.ghost{background:#fff;border:1px solid var(--line);color:#4e5f74;border-radius:11px;padding:10px 13px;font-weight:700;font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.card{background:#fff;border:1px solid #e8eef4;border-radius:16px;box-shadow:0 7px 24px rgba(18,43,70,.045)}
+.kpi{padding:17px}.kpi small{color:var(--muted);font-size:11px;font-weight:600}.kpi strong{display:block;font-size:26px;margin-top:10px;letter-spacing:-.02em}
+.kpi .ic{float:right;width:38px;height:38px;border-radius:11px;background:#e9f7f4;display:grid;place-items:center}.kpi .ic svg{width:19px;height:19px;stroke:#0f8d84}
+.cardhead{padding:16px 18px 11px;display:flex;justify-content:space-between;align-items:center}.cardhead h3{margin:0;font-size:13.5px}.cardhead span{font-size:11px;color:var(--muted)}
+.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{text-align:left;color:#7a899a;font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:11px 14px;border-bottom:1px solid var(--line)}
+.table td{padding:13px 14px;border-bottom:1px solid #eef2f5;white-space:nowrap}.table tr:last-child td{border-bottom:0}.table tbody tr:hover{background:#f6fafc}
+.badge{display:inline-flex;border-radius:999px;padding:4px 9px;font-size:9.5px;font-weight:850}
+.badge.green{background:#e7f8f1;color:#08775b}.badge.amber{background:#fff5e5;color:#9b5d08}.badge.red{background:#ffeceb;color:#a8362e}.badge.blue{background:#e8f2ff;color:#1558b0}.badge.gray{background:#eef2f5;color:#617183}
+.person{display:flex;align-items:center;gap:9px}.person .pic{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#d8e7ef,#edf5f8);display:grid;place-items:center;font-size:9px;font-weight:850;color:#476077}
+.progress{height:7px;background:#edf2f5;border-radius:99px;overflow:hidden;width:120px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--emerald),var(--aqua))}
+.modal{position:fixed;inset:0;background:rgba(4,15,26,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:40}.modal.open{display:flex}
+.modalbox{background:#fff;width:480px;max-width:100%;border-radius:20px;box-shadow:0 18px 55px rgba(16,35,59,.2);padding:22px;max-height:92vh;overflow:auto}
+.modalbox h3{margin:0 0 5px;font-size:18px}.modalbox p{color:var(--muted);font-size:11.5px;line-height:1.6;margin:0}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{margin-top:12px}.field.full{grid-column:1/-1}
+.field label{display:block;font-size:9px;color:#6b7a90;font-weight:800;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{width:100%;border:1px solid #dfe7ed;border-radius:11px;padding:11px;background:#fff;font-size:12.5px;outline:0}
+.field input:focus,.field select:focus{border-color:var(--emerald)}
+.modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.result{background:linear-gradient(120deg,#e7f6ee,#e9f7f4);border:1px solid #cdeadd;border-radius:15px;padding:16px;margin-top:6px}
+.pinbig{font-size:34px;font-weight:850;letter-spacing:.28em;color:var(--forest);text-align:center;margin:6px 0 12px}
+.msgbox{background:#fff;border:1px solid #d9eee4;border-radius:12px;padding:12px;font-size:11.5px;color:#33463c;white-space:pre-wrap;line-height:1.55;max-height:190px;overflow:auto}
+.wa{background:#25D366;color:#fff;border:0;border-radius:11px;padding:12px;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;flex:1}
+.wa svg{width:17px;height:17px;stroke:#fff}
+.toast{position:fixed;right:22px;bottom:22px;background:#0e2234;color:#fff;border-radius:12px;padding:12px 15px;font-size:12px;display:flex;gap:8px;align-items:center;z-index:80;opacity:0;transform:translateY(14px);transition:.25s;pointer-events:none}
+.toast.show{opacity:1;transform:none}.toast svg{width:16px;height:16px;stroke:var(--emerald2)}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.kpis{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2s6 6.2 6 11a6 6 0 1 1-12 0c0-4.8 6-11 6-11Z" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/><rect x="14" y="3" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/><rect x="3" y="14" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/><rect x="14" y="14" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="none" stroke-width="1.7"/><path d="M3.5 20c.6-3.4 3-5 5.5-5s4.9 1.6 5.5 5M16 5.2A3.2 3.2 0 0 1 16 11M17 15c2 .5 3.5 2 4 5" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11z" fill="none" stroke-width="1.7"/><path d="M13.5 9.5h4l3 3v3h-7z" fill="none" stroke-width="1.7"/><circle cx="6.5" cy="17.5" r="2" fill="none" stroke-width="1.7"/><circle cx="17" cy="17.5" r="2" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.4" fill="none" stroke-width="1.7"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 19h18Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.1" fill="none" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 6.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke-width="1.7"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke-width="1.7"/></symbol>
+</defs></svg>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="bm"><svg><use href="#i-drop"/></svg></div><div><b>AquaOS</b><small>by DevX</small></div></div>
+    <button class="navbtn active" onclick="go('dashboard',this)"><svg><use href="#i-grid"/></svg>Dashboard</button>
+    <button class="navbtn" onclick="go('customers',this)"><svg><use href="#i-users"/></svg>Customers</button>
+    <button class="navbtn" onclick="go('drivers',this)"><svg><use href="#i-truck"/></svg>Drivers</button>
+    <button class="navbtn" onclick="go('deliveries',this)"><svg><use href="#i-cal"/></svg>Deliveries</button>
+    <button class="navbtn" onclick="go('exceptions',this)"><svg><use href="#i-alert"/></svg>Exceptions</button>
+    <div style="margin-top:20px;border-top:1px solid #14304a;padding:14px 8px 0;color:#93a9c1;font-size:10px;line-height:1.6"><b style="color:#cfe0ee">Live database</b><br/><span id="dbstatus">connecting…</span></div>
+  </aside>
+  <div class="main">
+    <div class="topbar"><div><h1 id="pt">Operations Dashboard</h1><p id="ps">Live data from your AquaOS database</p></div><div class="avatar"><div class="pic">RA</div></div></div>
+    <div class="content">
+
+      <section id="dashboard" class="page active">
+        <div class="hero"><div><div class="eyebrow">Live</div><h2>Operations Dashboard</h2><p>Real counts from the database — updates as you create customers and drivers complete deliveries.</p></div><button class="primary" onclick="openNew()"><svg><use href="#i-plus"/></svg>New Customer</button></div>
+        <div class="kpis" id="kpis"></div>
+        <div class="card"><div class="cardhead"><h3>Today's deliveries</h3><span id="delcount"></span></div><div class="tablewrap"><table class="table" id="delTable"><thead><tr><th>Seq</th><th>Customer</th><th>Address</th><th>Driver route</th><th>Qty</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <section id="customers" class="page">
+        <div class="hero"><div><div class="eyebrow">CRM</div><h2>Customers</h2><p>Every customer has a unique 4-digit PIN. Create one to generate its welcome link.</p></div><button class="primary" onclick="openNew()"><svg><use href="#i-plus"/></svg>New Customer</button></div>
+        <div class="card"><div class="tablewrap"><table class="table" id="custTable"><thead><tr><th>Customer</th><th>Mobile</th><th>Zone</th><th>Plan</th><th>Bottle balance</th><th>PIN</th><th>Next</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <section id="drivers" class="page">
+        <div class="hero"><div><div class="eyebrow">Fleet</div><h2>Drivers</h2><p>Drivers sign in to the app with mobile + PIN. Truck capacity limits route loads.</p></div></div>
+        <div class="card"><div class="tablewrap"><table class="table" id="drvTable"><thead><tr><th>Driver</th><th>Mobile</th><th>PIN</th><th>Truck</th><th>Route</th><th>Capacity (full/empty)</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <section id="deliveries" class="page">
+        <div class="hero"><div><div class="eyebrow">Operations</div><h2>Deliveries — today</h2><p>Live status as drivers complete stops in the app.</p></div></div>
+        <div class="card"><div class="tablewrap"><table class="table" id="delTable2"><thead><tr><th>Seq</th><th>Customer</th><th>Address</th><th>Requested</th><th>Delivered</th><th>Empties</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+      </section>
+
+      <section id="exceptions" class="page">
+        <div class="hero"><div><div class="eyebrow">Exception-first</div><h2>Exceptions</h2><p>Field events logged by drivers become structured records here.</p></div></div>
+        <div class="card"><div class="tablewrap"><table class="table" id="excTable"><thead><tr><th>Customer</th><th>Address</th><th>Type</th><th>Logged</th></tr></thead><tbody></tbody></table></div></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mNew"><div class="modalbox">
+  <div id="newForm">
+    <h3>New Customer</h3><p>Creates the customer, a unique 4-digit PIN, the first scheduled delivery, and a WhatsApp welcome link.</p>
+    <div class="formgrid">
+      <div class="field"><label>Full name</label><input id="f-name" placeholder="e.g. Layla Ahmed"/></div>
+      <div class="field"><label>Mobile</label><input id="f-mobile" placeholder="050 123 4567"/></div>
+      <div class="field full"><label>Service address</label><input id="f-address" placeholder="Villa / Apt, Area, Dubai"/></div>
+      <div class="field"><label>Zone</label><select id="f-zone"><option>Marina</option><option>Bay</option><option>JLT</option><option>Barsha</option></select></div>
+      <div class="field"><label>Plan</label><select id="f-plan"></select></div>
+      <div class="field"><label>Delivery day</label><select id="f-day"><option>Monday</option><option>Tuesday</option><option selected>Wednesday</option><option>Thursday</option><option>Saturday</option></select></div>
+      <div class="field"><label>Payment</label><select id="f-pay"><option value="online">Online · auto-renew</option><option value="cash">Cash on delivery</option></select></div>
+    </div>
+    <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" id="createBtn" onclick="createCustomer()"><svg><use href="#i-check"/></svg>Create &amp; generate PIN</button></div>
+  </div>
+  <div id="newResult" style="display:none">
+    <h3>Customer created</h3><p id="r-sub"></p>
+    <div class="result">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--forest);text-align:center">Unique 4-digit PIN</div>
+      <div class="pinbig" id="r-pin">0000</div>
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--forest);margin-bottom:6px">Welcome message</div>
+      <div class="msgbox" id="r-msg"></div>
+      <div style="display:flex;gap:9px;margin-top:12px">
+        <a class="wa" id="r-wa" target="_blank" rel="noopener"><svg><use href="#i-chat"/></svg>Send on WhatsApp</a>
+        <button class="ghost" onclick="copyMsg()"><svg style="width:15px;height:15px;stroke:currentColor;vertical-align:-2px"><use href="#i-copy"/></svg> Copy</button>
+      </div>
+    </div>
+    <div class="modalactions"><button class="ghost" onclick="closeModal()">Done</button><button class="primary" onclick="openNew()"><svg><use href="#i-plus"/></svg>Add another</button></div>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastmsg">Saved</span></div>
+
+<script>
+const $=s=>document.querySelector(s);
+let plans=[], lastMsg='';
+function go(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('#'+id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');const t={dashboard:['Operations Dashboard','Live data from your AquaOS database'],customers:['Customers','Unique PIN per customer'],drivers:['Drivers','Fleet & credentials'],deliveries:["Deliveries — today",'Live delivery status'],exceptions:['Exceptions','Structured field events']}[id];$('#pt').textContent=t[0];$('#ps').textContent=t[1];refresh();}
+function money(n){return 'AED '+Number(n).toLocaleString()}
+async function refresh(){
+  try{
+    const s=await (await fetch('/api/stats')).json();
+    $('#dbstatus').innerHTML='● online · '+s.customers+' customers';
+    $('#kpis').innerHTML=[
+      ['Customers',s.customers,'i-users'],['Deliveries today',s.deliveriesToday+' ('+s.completedToday+' done)','i-truck'],
+      ['Bottles at customers',s.bottlesOut,'i-drop'],['Deposits held',money(s.deposits),'i-check']
+    ].map(k=>`<div class="card kpi"><span class="ic"><svg><use href="#${k[2]}"/></svg></span><small>${k[0]}</small><strong>${k[1]}</strong></div>`).join('');
+    const dels=await (await fetch('/api/driver/0/stops')).json().catch(()=>[]);
+    // dashboard + deliveries tables from a combined query
+    const all=await allDeliveries();
+    $('#delcount').textContent=all.length+' scheduled';
+    $('#delTable tbody').innerHTML=all.map(d=>`<tr><td>${d.seq}</td><td>${d.customer}</td><td style="color:var(--muted)">${d.address}</td><td>${d.route||'—'}</td><td>${d.qty_requested}</td><td>${statusBadge(d.status)}</td></tr>`).join('')||emptyRow(6);
+    $('#delTable2 tbody').innerHTML=all.map(d=>`<tr><td>${d.seq}</td><td>${d.customer}</td><td style="color:var(--muted)">${d.address}</td><td>${d.qty_requested}</td><td>${d.qty_delivered||'—'}</td><td>${d.empties_collected||'—'}</td><td>${statusBadge(d.status)}</td></tr>`).join('')||emptyRow(7);
+  }catch(e){$('#dbstatus').textContent='● API offline — run npm start'}
+  // customers
+  const cs=await (await fetch('/api/customers')).json();
+  $('#custTable tbody').innerHTML=cs.map(c=>{const pct=Math.round(c.bottles_left/c.bottles_total*100);return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>0${c.mobile}</td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total}</small></td><td><b style="letter-spacing:.12em">${c.pin||'••••'}</b></td><td>${c.delivery_day}</td><td>${statusBadge(c.status)}</td></tr>`}).join('')||emptyRow(8);
+  // drivers
+  const ds=await (await fetch('/api/drivers')).json();
+  $('#drvTable tbody').innerHTML=ds.map(d=>`<tr><td><div class="person"><div class="pic">${initials(d.name)}</div><b>${d.name}</b></div></td><td>0${d.mobile}</td><td><b style="letter-spacing:.12em">${d.pin}</b></td><td>${d.truck}</td><td>${d.route}</td><td>${d.cap_full} / ${d.cap_empty}</td><td><span class="badge green">${d.status}</span></td></tr>`).join('');
+  // exceptions
+  const ex=await (await fetch('/api/exceptions')).json();
+  $('#excTable tbody').innerHTML=ex.map(e=>`<tr><td>${e.customer}</td><td style="color:var(--muted)">${e.address}</td><td><span class="badge amber">${e.exception}</span></td><td>${(e.completed_at||'').replace('T',' ').slice(0,16)}</td></tr>`).join('')||emptyRow(4,'No open exceptions');
+}
+async function allDeliveries(){
+  const ds=await (await fetch('/api/drivers')).json();
+  let out=[];
+  for(const d of ds){const rows=await (await fetch('/api/driver/'+d.id+'/stops')).json();rows.forEach(r=>r.route=d.route);out=out.concat(rows);}
+  return out.sort((a,b)=>(a.route||'').localeCompare(b.route||'')||a.seq-b.seq);
+}
+function statusBadge(s){const m={pending:['gray','Pending'],done:['green','Delivered'],skipped:['amber','Skipped'],exception:['red','Exception'],active:['green','Active']};const x=m[s]||['gray',s];return `<span class="badge ${x[0]}">${x[1]}</span>`}
+function initials(n){return (n||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
+function emptyRow(cols,txt){return `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);padding:22px">${txt||'No records yet'}</td></tr>`}
+function openNew(){$('#newForm').style.display='block';$('#newResult').style.display='none';['f-name','f-mobile','f-address'].forEach(id=>$('#'+id).value='');$('#mNew').classList.add('open')}
+function closeModal(){$('#mNew').classList.remove('open')}
+$('#mNew').addEventListener('click',e=>{if(e.target.id==='mNew')closeModal()});
+async function createCustomer(){
+  const body={name:$('#f-name').value.trim(),mobile:$('#f-mobile').value.trim(),address:$('#f-address').value.trim(),zone:$('#f-zone').value,plan_id:Number($('#f-plan').value),delivery_day:$('#f-day').value,payment:$('#f-pay').value};
+  if(!body.name||!body.mobile){toast('Name and mobile are required');return}
+  $('#createBtn').disabled=true;
+  const res=await fetch('/api/customers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data=await res.json();$('#createBtn').disabled=false;
+  if(!data.ok){toast(data.error||'Could not create');return}
+  lastMsg=data.welcomeMessage;
+  $('#r-sub').textContent=data.customer.name+' · 0'+data.customer.mobile+' · '+data.customer.plan_name;
+  $('#r-pin').textContent=data.pin;$('#r-msg').textContent=data.welcomeMessage;$('#r-wa').href=data.whatsappLink;
+  $('#newForm').style.display='none';$('#newResult').style.display='block';
+  toast('Customer created · PIN '+data.pin);refresh();
+}
+function copyMsg(){navigator.clipboard.writeText(lastMsg).then(()=>toast('Welcome message copied'))}
+let tT;function toast(m){$('#toastmsg').textContent=m;$('#toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('#toast').classList.remove('show'),2600)}
+(async function init(){plans=await (await fetch('/api/plans')).json();$('#f-plan').innerHTML=plans.map(p=>`<option value="${p.id}">${p.name} · ${p.bottles} bottles · AED ${p.price}</option>`).join('');refresh();})();
+</script>
+</body></html>

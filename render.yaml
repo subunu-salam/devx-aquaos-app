@@ -1,0 +1,21 @@
+# Render Blueprint — DevX AquaOS (Node web service + SQLite)
+# Deploy: on Render, New -> Blueprint -> connect the repo with this file -> Apply.
+services:
+  - type: web
+    name: devx-aquaos
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: COMPANY_NAME
+        value: PureWave Water
+      # On the FREE plan the disk is ephemeral, so the SQLite file resets on each
+      # redeploy/restart (fine for a demo/pilot). For permanent data, upgrade the
+      # instance and uncomment the disk block + DB_PATH below (needs a paid plan).
+      # - key: DB_PATH
+      #   value: /data/aquaos.db
+    # disk:
+    #   name: aquaos-data
+    #   mountPath: /data
+    #   sizeGB: 1

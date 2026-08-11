@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My Water · AquaOS</title>
+<style>
+:root{--ink:#0b1f2e;--muted:#7089a0;--line:#e6eef4;--emerald:#159050;--emerald2:#3FB577;--aqua:#14b8a6;--cyan:#0ea5e9;--amber:#d97706;--red:#dc2626;--forest:#0C6236;--head:linear-gradient(155deg,#0b6ea8,#0d9488 88%)}
+*{box-sizing:border-box}html,body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;min-height:100dvh;background:#e7edf2;display:flex;justify-content:center}button{font:inherit;cursor:pointer}
+.app{width:100%;max-width:480px;min-height:100vh;min-height:100dvh;background:#f4f8fb;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 50px rgba(0,0,0,.16)}
+.screen{flex:1;overflow-y:auto;display:none}.screen.active{display:block}.screen::-webkit-scrollbar{width:0}
+.authhead{background:var(--head);color:#fff;padding:46px 24px 30px;text-align:center;position:relative;overflow:hidden}
+.authhead:after{content:"";position:absolute;right:-40px;top:-40px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.08)}
+.authhead .logo{width:62px;height:62px;border-radius:18px;background:rgba(255,255,255,.18);display:grid;place-items:center;margin:0 auto 14px;position:relative;z-index:2}
+.authhead .logo svg{width:32px;height:32px;stroke:#fff}.authhead h2{margin:0;font-size:23px;position:relative;z-index:2}.authhead p{margin:7px 0 0;font-size:12px;color:#d8eef9;position:relative;z-index:2}
+.authbody{padding:22px 20px}
+.lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:6px 2px 10px}
+.ig{display:flex;align-items:center;border:1.5px solid #dbe6ee;border-radius:14px;overflow:hidden;background:#fff}
+.ig .cc{padding:15px 13px;background:#f3f8fb;font-weight:800;font-size:14px;color:#3d5064;border-right:1px solid #e4eef4}
+.ig input{flex:1;border:0;outline:0;padding:15px;font-size:16px;min-width:0}
+.pinrow{display:flex;gap:10px;justify-content:center;margin:6px 0}
+.pinbox{width:56px;height:64px;border:1.5px solid #dbe6ee;border-radius:14px;text-align:center;font-size:26px;font-weight:850;color:var(--ink);outline:0;background:#fff}
+.pinbox:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(21,144,80,.12)}
+.err{color:var(--red);font-size:11.5px;text-align:center;margin-top:12px;min-height:14px}
+.btn{width:100%;border:0;border-radius:14px;padding:15px;font-size:13.5px;font-weight:850;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn.primary{background:linear-gradient(135deg,var(--emerald),#0f9f97);color:#fff;box-shadow:0 12px 24px rgba(15,159,151,.28)}
+.btn.blue{background:linear-gradient(135deg,#0b6ea8,#0d9488);color:#fff;box-shadow:0 12px 24px rgba(11,110,168,.26)}
+.btn.outline{background:#fff;border:1.5px solid #dbe6ee;color:#3d5064}.btn svg{width:18px;height:18px;stroke:currentColor}.btnrow{display:flex;gap:9px}
+.apphead{background:var(--head);color:#fff;padding:14px 20px 24px;position:relative;overflow:hidden}
+.apphead:after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
+.apphead .top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.apphead .u{display:flex;align-items:center;gap:10px}.apphead .avatar{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:12px;font-weight:800}
+.apphead .u b{font-size:13px;display:block}.apphead .u small{font-size:10px;color:#d8eef9}
+.apphead .ico{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.16);border:0;display:grid;place-items:center}.apphead .ico svg{width:18px;height:18px;stroke:#fff}
+.balance{position:relative;z-index:2;margin-top:16px}.balance small{font-size:11px;color:#d8eef9}
+.balance .num{display:flex;align-items:flex-end;gap:8px;margin-top:4px}.balance .num b{font-size:44px;letter-spacing:-.04em;line-height:1}.balance .num span{font-size:13px;color:#d8eef9;margin-bottom:6px}
+.balance .track{height:8px;background:rgba(255,255,255,.22);border-radius:99px;overflow:hidden;margin-top:12px}.balance .track i{display:block;height:100%;background:#fff}
+.body{padding:16px}.lbl2{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:8px 2px 10px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 20px rgba(20,44,72,.05)}.card .in{padding:15px}
+.next{display:flex;gap:13px;align-items:center}.next .ic{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#0b6ea8,#0d9488);display:grid;place-items:center;flex:0 0 auto}.next .ic svg{width:24px;height:24px;stroke:#fff}
+.next .t b{font-size:14px}.next .t small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qbtn{border:1px solid var(--line);background:#fff;border-radius:15px;padding:15px 13px;text-align:left;display:flex;flex-direction:column;gap:9px}
+.qbtn .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center}.qbtn .ic svg{width:19px;height:19px}
+.qbtn.a .ic{background:#e6f4fd}.qbtn.a .ic svg{stroke:var(--cyan)}.qbtn.b .ic{background:#e7f6ee}.qbtn.b .ic svg{stroke:var(--emerald)}.qbtn.c .ic{background:#fff5e5}.qbtn.c .ic svg{stroke:var(--amber)}.qbtn.d .ic{background:#f0eefd}.qbtn.d .ic svg{stroke:#6d5ae0}
+.qbtn b{font-size:12.5px}.qbtn small{font-size:10.5px;color:var(--muted)}
+.hist{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid #eff4f7}.hist:last-child{border-bottom:0}
+.hist .ph{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#0b6ea8,#0d9488);flex:0 0 auto;position:relative;overflow:hidden}.hist .ph:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 6px,transparent 6px 12px)}
+.hist .t b{font-size:12.5px}.hist .t small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+.badge{display:inline-flex;border-radius:999px;padding:4px 9px;font-size:9.5px;font-weight:850}.badge.green{background:#e7f8f1;color:#08775b}
+.backbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#0b6ea8;color:#fff}.backbar button{background:rgba(255,255,255,.16);border:0;width:34px;height:34px;border-radius:10px;display:grid;place-items:center}.backbar button svg{width:18px;height:18px;stroke:#fff}.backbar b{font-size:14px}
+.detwrap{padding:16px}
+.qtybar{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e4eef4;border-radius:16px;padding:10px;box-shadow:0 6px 16px rgba(20,44,72,.05)}
+.qb{width:48px;height:48px;border-radius:13px;border:1.5px solid #dbe6ee;background:#f6fafc;font-size:24px;font-weight:800;color:var(--cyan);display:grid;place-items:center}
+.qn{flex:1;text-align:center}.qn b{font-size:34px}.qn small{display:block;font-size:11px;color:var(--muted)}
+.summary{background:#f6fafc;border:1px solid #e4eef4;border-radius:14px;padding:14px;margin:14px 0}.kv{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dashed #eef3f6;font-size:12.5px}.kv:last-child{border-bottom:0}.kv .m{color:var(--muted)}
+.opt{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:10px;background:#fff;cursor:pointer}.opt.sel{border-color:var(--emerald);background:#f1faf5}
+.opt .radio{width:22px;height:22px;border-radius:50%;border:2px solid #cdd8e2;flex:0 0 auto}.opt.sel .radio{border-color:var(--emerald);background:var(--emerald);display:grid;place-items:center}.opt.sel .radio:after{content:"";width:8px;height:8px;border-radius:50%;background:#fff}
+.opt .t b{font-size:13px}.opt .t small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.tabbar{height:62px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around}
+.tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;color:#9aabbd;font-size:9.5px;font-weight:750;flex:1}.tab svg{width:21px;height:21px;stroke:currentColor}.tab.active{color:var(--cyan)}
+.success{width:84px;height:84px;border-radius:50%;background:linear-gradient(145deg,var(--emerald),#0f9f97);display:grid;place-items:center;margin:34px auto 16px}.success svg{width:42px;height:42px;stroke:#fff}
+.toast{position:absolute;left:50%;bottom:78px;transform:translateX(-50%) translateY(12px);background:#08303f;color:#fff;border-radius:12px;padding:11px 15px;font-size:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:30;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%)}
+@media(max-width:520px){.app{max-width:100%;box-shadow:none}}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2s6 6.2 6 11a6 6 0 1 1-12 0c0-4.8 6-11 6-11Z" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-add" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-plane" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 6.5" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7M6 9.5V20h12V9.5" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-hist" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 5v3.5h3.5" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.2l3 1.8" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke-width="1.7"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.4" fill="none" stroke-width="1.7"/><path d="M3 9.5h18" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+</defs></svg>
+<div class="app">
+  <!-- LOGIN -->
+  <div class="screen active" id="s-login">
+    <div class="authhead"><div class="logo"><svg><use href="#i-drop"/></svg></div><h2>My Water</h2><p>Sign in with your mobile</p></div>
+    <div class="authbody">
+      <div class="lbl">Mobile number</div>
+      <div class="ig"><span class="cc">+971</span><input id="mob" inputmode="numeric" placeholder="50 123 4567" value="50 123 4567"/></div>
+      <div class="lbl" style="margin-top:18px">4-digit PIN</div>
+      <div class="pinrow"><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,0)"/><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,1)"/><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,2)"/><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,3)"/></div>
+      <div class="err" id="err"></div>
+      <button class="btn primary" onclick="login()"><svg><use href="#i-check"/></svg>Sign in</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:16px">Demo: 50 123 4567 · PIN 4921. Your PIN comes by WhatsApp when your account is created.</p>
+    </div>
+  </div>
+  <!-- HOME -->
+  <div class="screen" id="s-home">
+    <div class="apphead"><div class="top"><div class="u"><div class="avatar" id="cini">FH</div><div><b id="cname">Customer</b><small id="caddr"></small></div></div><button class="ico" onclick="signOut()"><svg><use href="#i-user"/></svg></button></div>
+      <div class="balance"><small>Bottles remaining on your plan</small><div class="num"><b id="cbal">0</b><span id="cplan"></span></div><div class="track"><i id="cbar" style="width:0%"></i></div></div>
+    </div>
+    <div class="body">
+      <div class="lbl2">Next delivery</div>
+      <div class="card"><div class="in">
+        <div class="next"><div class="ic"><svg><use href="#i-drop"/></svg></div><div class="t"><b id="ndDate">—</b><small id="ndQty"></small></div></div>
+        <div style="margin-top:13px" class="quick"><button class="btn blue" style="padding:12px" onclick="openReq()"><svg><use href="#i-add"/></svg>Change quantity</button><button class="btn outline" style="padding:12px" onclick="openSkip()"><svg><use href="#i-plane"/></svg>Skip</button></div>
+      </div></div>
+      <div class="lbl2">Quick actions</div>
+      <div class="quick">
+        <button class="qbtn a" onclick="openReq()"><div class="ic"><svg><use href="#i-add"/></svg></div><div><b>Extra bottles</b><small>Add to next delivery</small></div></button>
+        <button class="qbtn c" onclick="openSkip()"><div class="ic"><svg><use href="#i-plane"/></svg></div><div><b>Skip / vacation</b><small>Pause a delivery</small></div></button>
+        <button class="qbtn d" onclick="loadHistory();showTab('s-history')"><div class="ic"><svg><use href="#i-hist"/></svg></div><div><b>Proof history</b><small>Past deliveries</small></div></button>
+        <button class="qbtn b" onclick="toast('Renewal — connect payment gateway')"><div class="ic"><svg><use href="#i-card"/></svg></div><div><b>Renew plan</b><small>Pay online</small></div></button>
+      </div>
+      <div class="lbl2">Recent deliveries</div>
+      <div class="card"><div class="in" id="recent" style="padding-top:6px;padding-bottom:6px"></div></div>
+      <div style="height:8px"></div>
+    </div>
+  </div>
+  <!-- REQUEST -->
+  <div class="screen" id="s-req">
+    <div class="backbar"><button onclick="showTab('s-home')"><svg><use href="#i-back"/></svg></button><b>Delivery quantity</b></div>
+    <div class="detwrap">
+      <div class="lbl2">Bottles for your next delivery</div>
+      <div class="qtybar"><button class="qb" onclick="rq(-1)">−</button><div class="qn"><b id="rqn">2</b><small>bottles</small></div><button class="qb" onclick="rq(1)">+</button></div>
+      <div class="summary"><div class="kv"><span class="m">New quantity</span><b id="rqSum">2 bottles</b></div><div class="kv"><span class="m">Plan balance after</span><b id="rqBal">—</b></div></div>
+      <button class="btn blue" onclick="submitReq()"><svg><use href="#i-check"/></svg>Confirm change</button>
+    </div>
+  </div>
+  <!-- SKIP -->
+  <div class="screen" id="s-skip">
+    <div class="backbar"><button onclick="showTab('s-home')"><svg><use href="#i-back"/></svg></button><b>Skip delivery</b></div>
+    <div class="detwrap">
+      <div class="opt sel"><div class="radio"></div><div class="t"><b>Skip next delivery</b><small id="skipWhen">Your upcoming delivery</small></div></div>
+      <div class="summary"><div class="kv"><span class="m">Your plan balance is protected</span><span class="badge green">No bottles lost</span></div></div>
+      <button class="btn primary" onclick="submitSkip()"><svg><use href="#i-check"/></svg>Confirm skip</button>
+    </div>
+  </div>
+  <!-- HISTORY -->
+  <div class="screen" id="s-history">
+    <div class="apphead" style="padding-bottom:16px"><div class="top"><h2 style="margin:0;font-size:20px">Delivery history</h2></div></div>
+    <div class="body"><div class="card"><div class="in" id="histList" style="padding-top:6px;padding-bottom:6px"></div></div></div>
+  </div>
+  <!-- SUCCESS -->
+  <div class="screen" id="s-ok">
+    <div class="body" style="text-align:center;padding-top:8px"><div class="success"><svg><use href="#i-check"/></svg></div><h2 id="okT" style="margin:0 0 6px;font-size:22px">Done</h2><p id="okP" style="color:var(--muted);font-size:12.5px;margin:0 0 20px"></p><button class="btn blue" onclick="loadHome();showTab('s-home')"><svg><use href="#i-home"/></svg>Back to home</button></div>
+  </div>
+  <div class="tabbar" id="tabbar" style="display:none">
+    <button class="tab active" id="tb-h" onclick="showTab('s-home')"><svg><use href="#i-home"/></svg>Home</button>
+    <button class="tab" onclick="openReq()"><svg><use href="#i-add"/></svg>Request</button>
+    <button class="tab" onclick="loadHistory();showTab('s-history')"><svg><use href="#i-hist"/></svg>History</button>
+    <button class="tab" onclick="signOut()"><svg><use href="#i-user"/></svg>Sign out</button>
+  </div>
+  <div class="toast" id="toast"><span id="tm">Done</span></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);let me=null,next=null,rqv=2;
+function showTab(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('#'+id).classList.add('active');$('#tabbar').style.display=(id==='s-login')?'none':'flex';document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));if(id==='s-home')$('#tb-h').classList.add('active');const a=document.querySelector('.screen.active');if(a)a.scrollTop=0}
+function pa(el,i){el.value=el.value.replace(/[^0-9]/g,'');const b=document.querySelectorAll('#s-login .pinbox');if(el.value&&i<3)b[i+1].focus()}
+async function login(){
+  const mob=$('#mob').value,pin=[...document.querySelectorAll('#s-login .pinbox')].map(b=>b.value).join('');
+  if(pin.length<4){$('#err').textContent='Enter your 4-digit PIN';return}
+  const r=await fetch('/api/customer/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:mob,pin})});
+  const d=await r.json();if(!d.ok){$('#err').textContent=d.error||'Login failed';return}
+  me=d.customer;await loadHome();showTab('s-home');$('#tabbar').style.display='flex';toast('Welcome back, '+me.name.split(' ')[0]);
+}
+async function loadHome(){
+  const d=await (await fetch('/api/customer/'+me.id)).json();me=d.customer;next=d.nextDelivery;
+  $('#cname').textContent=me.name;$('#caddr').textContent=me.address||'';$('#cini').textContent=me.name.split(' ').map(w=>w[0]).slice(0,2).join('');
+  $('#cbal').textContent=me.bottles_left;$('#cplan').textContent='of '+me.bottles_total+' · '+me.plan_name;$('#cbar').style.width=Math.round(me.bottles_left/me.bottles_total*100)+'%';
+  if(next){$('#ndDate').textContent=fmtDate(next.scheduled_date);$('#ndQty').textContent=next.qty_requested+' bottle(s) · '+me.delivery_day+' window';$('#skipWhen').textContent=fmtDate(next.scheduled_date);rqv=next.qty_requested;}
+  else{$('#ndDate').textContent='No delivery scheduled';$('#ndQty').textContent='';}
+  loadRecent();
+}
+async function loadRecent(){const h=await (await fetch('/api/customer/'+me.id+'/history')).json();$('#recent').innerHTML=h.slice(0,3).map(x=>histRow(x)).join('')||'<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No deliveries yet</div>'}
+async function loadHistory(){const h=await (await fetch('/api/customer/'+me.id+'/history')).json();$('#histList').innerHTML=h.map(x=>histRow(x)).join('')||'<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No deliveries yet</div>'}
+function histRow(x){return `<div class="hist"><div class="ph"></div><div class="t"><b>${x.qty_delivered} bottles delivered</b><small>${(x.completed_at||x.scheduled_date||'').replace('T',' ').slice(0,16)} · ${x.empties_collected} empties collected</small></div><span class="badge green">${x.proof?'Proof':'Done'}</span></div>`}
+function fmtDate(s){if(!s)return '—';const d=new Date(s+'T00:00:00');return d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'short'})}
+function openReq(){rqv=next?next.qty_requested:2;$('#rqn').textContent=rqv;updateReq();showTab('s-req')}
+function rq(d){rqv=Math.max(0,rqv+d);$('#rqn').textContent=rqv;updateReq()}
+function updateReq(){$('#rqSum').textContent=rqv+' bottle'+(rqv===1?'':'s');$('#rqBal').textContent=Math.max(0,me.bottles_left-rqv)+' of '+me.bottles_total+' left'}
+async function submitReq(){if(!next){toast('No delivery to change');return}await fetch('/api/customer/'+me.id+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'quantity',qty:rqv})});$('#okT').textContent='Quantity updated';$('#okP').textContent=rqv+' bottles booked for '+fmtDate(next.scheduled_date)+'. Added to the truck load automatically.';showTab('s-ok')}
+function openSkip(){if(!next){toast('No delivery to skip');return}showTab('s-skip')}
+async function submitSkip(){await fetch('/api/customer/'+me.id+'/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'skip'})});$('#okT').textContent='Delivery skipped';$('#okP').textContent='Your upcoming delivery is skipped. Your bottle balance is safe.';showTab('s-ok')}
+function signOut(){me=null;document.querySelectorAll('#s-login .pinbox').forEach(b=>b.value='');$('#err').textContent='';showTab('s-login');$('#tabbar').style.display='none'}
+let tT;function toast(m){$('#tm').textContent=m;$('#toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('#toast').classList.remove('show'),2400)}
+</script>
+</body></html>

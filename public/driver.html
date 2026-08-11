@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AquaOS Driver</title>
+<style>
+:root{--ink:#0b1f2e;--muted:#7089a0;--line:#e6eef4;--emerald:#159050;--emerald2:#3FB577;--aqua:#14b8a6;--amber:#d97706;--red:#dc2626;--forest:#0C6236;--head:linear-gradient(150deg,#0c3f53,#0d7d78)}
+*{box-sizing:border-box}html,body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;min-height:100dvh;background:#e7edf2;display:flex;justify-content:center}button{font:inherit;cursor:pointer}
+.app{width:100%;max-width:480px;min-height:100vh;min-height:100dvh;background:#f4f8fb;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 50px rgba(0,0,0,.16)}
+.screen{flex:1;overflow-y:auto;display:none}.screen.active{display:block}.screen::-webkit-scrollbar{width:0}
+.authhead{background:var(--head);color:#fff;padding:46px 24px 30px;text-align:center}
+.authhead .logo{width:62px;height:62px;border-radius:18px;background:rgba(255,255,255,.18);display:grid;place-items:center;margin:0 auto 14px}
+.authhead .logo svg{width:32px;height:32px;stroke:#fff}.authhead h2{margin:0;font-size:23px}.authhead p{margin:7px 0 0;font-size:12px;color:#c7efe9}
+.authbody{padding:22px 20px}
+.lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:6px 2px 10px}
+.ig{display:flex;align-items:center;border:1.5px solid #dbe6ee;border-radius:14px;overflow:hidden;background:#fff}
+.ig .cc{padding:15px 13px;background:#f3f8fb;font-weight:800;font-size:14px;color:#3d5064;border-right:1px solid #e4eef4}
+.ig input{flex:1;border:0;outline:0;padding:15px;font-size:16px;min-width:0}
+.pinrow{display:flex;gap:10px;justify-content:center;margin:6px 0}
+.pinbox{width:56px;height:64px;border:1.5px solid #dbe6ee;border-radius:14px;text-align:center;font-size:26px;font-weight:850;color:var(--ink);outline:0;background:#fff}
+.pinbox:focus{border-color:var(--emerald);box-shadow:0 0 0 3px rgba(21,144,80,.12)}
+.err{color:var(--red);font-size:11.5px;text-align:center;margin-top:12px;min-height:14px}
+.apphead{background:var(--head);color:#fff;padding:16px 20px 22px}
+.apphead .top{display:flex;justify-content:space-between;align-items:center}
+.apphead .u{display:flex;align-items:center;gap:10px}.apphead .avatar{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:12px;font-weight:800}
+.apphead .u b{font-size:13px;display:block}.apphead .u small{font-size:10px;color:#bdeee8}
+.apphead .ico{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.14);border:0;display:grid;place-items:center}.apphead .ico svg{width:17px;height:17px;stroke:#fff}
+.apphead h2{margin:15px 0 3px;font-size:20px}.apphead p{margin:0;font-size:11.5px;color:#c7efe9}
+.hstats{display:flex;gap:9px;margin-top:14px}.hstat{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:9px}.hstat small{font-size:9px;color:#bdeee8;text-transform:uppercase;font-weight:800}.hstat b{display:block;font-size:17px;margin-top:2px}
+.body{padding:16px}
+.lbl2{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:6px 2px 10px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 8px 20px rgba(20,44,72,.05);overflow:hidden}
+.stop{display:flex;gap:12px;align-items:center;padding:14px;border-bottom:1px solid #eff4f7;cursor:pointer}.stop:last-child{border-bottom:0}
+.stop .seq{width:34px;height:34px;border-radius:10px;background:#eef5f8;color:#0e8f89;display:grid;place-items:center;font-weight:850;font-size:13px;flex:0 0 auto}
+.stop .seq.done{background:#0e8f89;color:#fff}.stop .seq.skip{background:#fdf3e5;color:var(--amber)}
+.stop .t{flex:1;min-width:0}.stop .t b{font-size:12.5px}.stop .t small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+.badge{display:inline-flex;border-radius:999px;padding:4px 9px;font-size:9.5px;font-weight:850}
+.badge.green{background:#e7f8f1;color:#08775b}.badge.gray{background:#eef2f5;color:#617183}.badge.amber{background:#fff5e5;color:#9b5d08}.badge.red{background:#ffeceb;color:#a8362e}
+.chev{width:18px;height:18px;stroke:#bcccd8;flex:0 0 auto}
+.btn{width:100%;border:0;border-radius:14px;padding:15px;font-size:13.5px;font-weight:850;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn.primary{background:linear-gradient(135deg,var(--emerald),#0f9f97);color:#fff;box-shadow:0 12px 24px rgba(15,159,151,.28)}
+.btn.dark{background:#0c3f53;color:#fff}.btn.outline{background:#fff;border:1.5px solid #dbe6ee;color:#3d5064}.btn.amber{background:#fff6e9;color:#9b5d08;border:1.5px solid #f3ddb5}
+.btn svg{width:18px;height:18px;stroke:currentColor}.btnrow{display:flex;gap:9px}
+.backbar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#0c3f53;color:#fff}.backbar button{background:rgba(255,255,255,.14);border:0;width:34px;height:34px;border-radius:10px;display:grid;place-items:center}.backbar button svg{width:18px;height:18px;stroke:#fff}.backbar b{font-size:14px}
+.detwrap{padding:16px}.detcard{background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;margin-bottom:12px}
+.detcard h3{margin:0 0 3px;font-size:16px}.detcard .addr{font-size:11.5px;color:var(--muted)}
+.kv{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dashed #eef3f6;font-size:12.5px}.kv:last-child{border-bottom:0}.kv .m{color:var(--muted)}
+.qtybar{display:flex;align-items:center;gap:12px;background:#f3f8fb;border:1px solid #e4eef4;border-radius:14px;padding:8px}
+.qb{width:42px;height:42px;border-radius:11px;border:1.5px solid #dbe6ee;background:#fff;font-size:20px;font-weight:800;color:var(--emerald);display:grid;place-items:center}
+.qn{flex:1;text-align:center}.qn b{font-size:26px}.qn small{display:block;font-size:10px;color:var(--muted)}
+.proof{border:1.5px dashed #bcd3dd;border-radius:15px;background:#f3fafb;min-height:120px;display:grid;place-items:center;text-align:center;color:#5a7a8c;padding:16px;cursor:pointer}
+.proof svg{width:28px;height:28px;stroke:#3d8b8a;margin-bottom:6px}.proof.on{border-style:solid;border-color:var(--emerald);background:#eef8f2;color:var(--forest)}
+.opt{display:flex;align-items:center;gap:11px;padding:13px;border:1px solid var(--line);border-radius:13px;margin-bottom:9px;background:#fff;cursor:pointer}
+.opt .ic{width:34px;height:34px;border-radius:10px;background:#fdf1e3;display:grid;place-items:center;flex:0 0 auto}.opt .ic svg{width:17px;height:17px;stroke:var(--amber)}
+.opt b{font-size:12.5px}.opt small{display:block;font-size:10.5px;color:var(--muted)}
+.tabbar{height:62px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around}
+.tab{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;color:#9aabbd;font-size:9.5px;font-weight:750;flex:1}.tab svg{width:21px;height:21px;stroke:currentColor}.tab.active{color:var(--emerald)}
+.success{width:84px;height:84px;border-radius:50%;background:linear-gradient(145deg,var(--emerald),#0f9f97);display:grid;place-items:center;margin:30px auto 16px}.success svg{width:42px;height:42px;stroke:#fff}
+.toast{position:absolute;left:50%;bottom:78px;transform:translateX(-50%) translateY(12px);background:#08303f;color:#fff;border-radius:12px;padding:11px 15px;font-size:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:30;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%)}
+@media(max-width:520px){.app{max-width:100%;box-shadow:none}}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2s6 6.2 6 11a6 6 0 1 1-12 0c0-4.8 6-11 6-11Z" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11z" fill="none" stroke-width="1.7"/><path d="M13.5 9.5h4l3 3v3h-7z" fill="none" stroke-width="1.7"/><circle cx="6.5" cy="17.5" r="2" fill="none" stroke-width="1.7"/><circle cx="17" cy="17.5" r="2" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 6.5" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-nav" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+<symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.2h7L17 8h3v11H4Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13.2" r="3.4" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 19h18Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.1" fill="none" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7M6 9.5V20h12V9.5" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" fill="none" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke-width="1.7"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+</defs></svg>
+<div class="app">
+  <!-- LOGIN -->
+  <div class="screen active" id="s-login">
+    <div class="authhead"><div class="logo"><svg><use href="#i-truck"/></svg></div><h2>AquaOS Driver</h2><p>Sign in with your mobile</p></div>
+    <div class="authbody">
+      <div class="lbl">Driver mobile number</div>
+      <div class="ig"><span class="cc">+971</span><input id="mob" inputmode="numeric" placeholder="55 210 7788" value="55 210 7788"/></div>
+      <div class="lbl" style="margin-top:18px">4-digit PIN</div>
+      <div class="pinrow">
+        <input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,0)"/><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,1)"/><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,2)"/><input class="pinbox" maxlength="1" inputmode="numeric" oninput="pa(this,3)"/>
+      </div>
+      <div class="err" id="err"></div>
+      <button class="btn primary" onclick="login()"><svg><use href="#i-check"/></svg>Sign in &amp; start shift</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:16px">Demo: 55 210 7788 · PIN 7306</p>
+    </div>
+  </div>
+  <!-- TODAY -->
+  <div class="screen" id="s-today">
+    <div class="apphead"><div class="top"><div class="u"><div class="avatar" id="dini">KS</div><div><b id="dname">Driver</b><small id="droute">Route</small></div></div><button class="ico" onclick="signOut()"><svg><use href="#i-user"/></svg></button></div>
+      <h2>Today's route</h2><p id="dsub">stops</p>
+      <div class="hstats"><div class="hstat"><small>Done</small><b id="hdone">0</b></div><div class="hstat"><small>Left</small><b id="hleft">0</b></div><div class="hstat"><small>Bottles</small><b id="hbtl">0</b></div></div>
+    </div>
+    <div class="body"><div class="lbl2">Stops</div><div class="card" id="stopList"></div></div>
+  </div>
+  <!-- STOP DETAIL -->
+  <div class="screen" id="s-stop">
+    <div class="backbar"><button onclick="showTab('s-today')"><svg><use href="#i-back"/></svg></button><b id="stopTitle">Stop</b></div>
+    <div class="detwrap">
+      <div class="detcard"><h3 id="sd-name">Customer</h3><div class="addr" id="sd-addr"></div>
+        <div style="margin-top:12px" class="btnrow"><button class="btn dark" onclick="toast('Opening navigation…')"><svg><use href="#i-nav"/></svg>Navigate</button></div></div>
+      <div class="detcard"><div class="kv"><span class="m">Requested today</span><b id="sd-req">0</b></div><div class="kv"><span class="m">Balance before</span><b id="sd-bal">0</b></div></div>
+      <div class="lbl2">Bottles delivered</div>
+      <div class="detcard" style="padding:12px"><div class="qtybar"><button class="qb" onclick="q(-1)">−</button><div class="qn"><b id="qn">0</b><small>full bottles</small></div><button class="qb" onclick="q(1)">+</button></div></div>
+      <div class="lbl2">Proof of delivery</div>
+      <div class="proof" id="proof" onclick="cap()"><div id="proofin"><svg><use href="#i-cam"/></svg><br>Tap to capture doorstep photo<br><small style="font-size:10px;color:#88a2b2">Timestamp + GPS auto-attached</small></div></div>
+      <div style="margin-top:14px" class="btnrow"><button class="btn amber" style="flex:1" onclick="showTab('s-exc')"><svg><use href="#i-alert"/></svg>Exception</button><button class="btn primary" style="flex:1.6" onclick="complete()"><svg><use href="#i-check"/></svg>Complete</button></div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+  <!-- EXCEPTION -->
+  <div class="screen" id="s-exc">
+    <div class="backbar"><button onclick="showTab('s-stop')"><svg><use href="#i-back"/></svg></button><b>Log exception</b></div>
+    <div class="detwrap" id="excList"></div>
+  </div>
+  <!-- SUCCESS -->
+  <div class="screen" id="s-ok">
+    <div class="body" style="text-align:center;padding-top:8px"><div class="success"><svg><use href="#i-check"/></svg></div>
+      <h2 id="okT" style="margin:0 0 6px;font-size:22px">Delivery complete</h2><p id="okP" style="color:var(--muted);font-size:12.5px;margin:0 0 20px"></p>
+      <button class="btn primary" onclick="loadStops();showTab('s-today')"><svg><use href="#i-chev"/></svg>Continue route</button></div>
+  </div>
+  <div class="tabbar" id="tabbar" style="display:none">
+    <button class="tab active" id="tb-h" onclick="showTab('s-today')"><svg><use href="#i-home"/></svg>Today</button>
+    <button class="tab" id="tb-s" onclick="showTab('s-today')"><svg><use href="#i-list"/></svg>Stops</button>
+    <button class="tab" onclick="signOut()"><svg><use href="#i-user"/></svg>Sign out</button>
+  </div>
+  <div class="toast" id="toast"><span id="tm">Done</span></div>
+</div>
+<script>
+const $=s=>document.querySelector(s);let driver=null,stops=[],cur=null,curQ=0,proofOn=false;
+const EXC=['No empty bottle available','Customer unavailable','Building access denied','Damaged bottle returned','Reschedule requested','Payment / cash issue'];
+function showTab(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('#'+id).classList.add('active');$('#tabbar').style.display=(id==='s-login')?'none':'flex';$('.screen.active')&&(document.querySelector('.screen.active').scrollTop=0)}
+function pa(el,i){el.value=el.value.replace(/[^0-9]/g,'');const b=document.querySelectorAll('#s-login .pinbox');if(el.value&&i<3)b[i+1].focus()}
+async function login(){
+  const mob=$('#mob').value,pin=[...document.querySelectorAll('#s-login .pinbox')].map(b=>b.value).join('');
+  if(pin.length<4){$('#err').textContent='Enter your 4-digit PIN';return}
+  const r=await fetch('/api/driver/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mobile:mob,pin})});
+  const d=await r.json();if(!d.ok){$('#err').textContent=d.error||'Login failed';return}
+  driver=d.driver;$('#dname').textContent=driver.name;$('#droute').textContent=driver.route+' · '+driver.truck;$('#dini').textContent=driver.name.split(' ').map(w=>w[0]).slice(0,2).join('');
+  await loadStops();showTab('s-today');$('#tabbar').style.display='flex';toast('Shift started');
+}
+async function loadStops(){
+  stops=await (await fetch('/api/driver/'+driver.id+'/stops')).json();
+  const done=stops.filter(s=>s.status!=='pending').length,btl=stops.reduce((a,s)=>a+(s.qty_requested||0),0);
+  $('#dsub').textContent=stops.length+' stops · '+driver.route;$('#hdone').textContent=done;$('#hleft').textContent=stops.length-done;$('#hbtl').textContent=btl;
+  $('#stopList').innerHTML=stops.map((s,i)=>{const cls=s.status==='done'?'done':s.status==='skipped'?'skip':'';const bdg=s.status==='pending'?'':`<span class="badge ${s.status==='done'?'green':s.status==='skipped'?'amber':'red'}">${s.status}</span>`;return `<div class="stop" onclick="openStop(${i})"><div class="seq ${cls}">${s.status==='done'?'✓':s.seq}</div><div class="t"><b>${s.customer}</b><small>${s.address} · ${s.qty_requested} bottle(s)</small></div>${bdg||'<svg class=\\'chev\\'><use href=\\'#i-chev\\'/></svg>'}</div>`}).join('')||'<div style="padding:22px;text-align:center;color:var(--muted)">No stops assigned today</div>';
+}
+function openStop(i){cur=stops[i];if(cur.status!=='pending'){toast('Already '+cur.status);return}curQ=cur.qty_requested;proofOn=false;
+  $('#stopTitle').textContent='Stop '+cur.seq;$('#sd-name').textContent=cur.customer;$('#sd-addr').textContent=cur.address;
+  $('#sd-req').textContent=cur.qty_requested;$('#sd-bal').textContent=cur.bottles_left+' bottles';$('#qn').textContent=curQ;
+  $('#proof').classList.remove('on');$('#proofin').innerHTML='<svg><use href="#i-cam"/></svg><br>Tap to capture doorstep photo<br><small style="font-size:10px;color:#88a2b2">Timestamp + GPS auto-attached</small>';
+  showTab('s-stop');}
+function q(d){curQ=Math.max(0,curQ+d);$('#qn').textContent=curQ}
+function cap(){proofOn=true;$('#proof').classList.add('on');$('#proofin').innerHTML='<b>Proof captured</b><br><small style="font-size:10px">'+new Date().toLocaleTimeString()+' · 25.19°N, 55.27°E</small>';toast('Proof photo attached')}
+async function complete(){
+  const r=await fetch('/api/delivery/'+cur.id+'/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({full:curQ,empties:curQ,proof:proofOn?1:0})});
+  const d=await r.json();if(!d.ok){toast('Error');return}
+  $('#okT').textContent='Delivery complete';$('#okP').innerHTML=cur.customer+' · '+curQ+' bottles delivered. Balance now <b>'+d.bottles_left+'</b>. Synced to CRM &amp; customer notified.';
+  showTab('s-ok');
+}
+function renderExc(){$('#excList').innerHTML='<p style="font-size:12px;color:var(--muted);margin:2px 2px 14px">'+((cur&&cur.customer)||'')+' · logged as a structured CRM event.</p>'+EXC.map(e=>`<div class="opt" onclick="logExc('${e.replace(/'/g,"")}')"><div class="ic"><svg><use href="#i-alert"/></svg></div><div><b>${e}</b></div><svg class="chev"><use href="#i-chev"/></svg></div>`).join('')}
+async function logExc(type){await fetch('/api/delivery/'+cur.id+'/exception',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type})});$('#okT').textContent='Exception logged';$('#okP').textContent=type+' · sent to the CRM. Ops team notified.';showTab('s-ok')}
+function signOut(){driver=null;document.querySelectorAll('#s-login .pinbox').forEach(b=>b.value='');$('#err').textContent='';showTab('s-login');$('#tabbar').style.display='none'}
+let tT;function toast(m){$('#tm').textContent=m;$('#toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('#toast').classList.remove('show'),2400)}
+document.addEventListener('click',e=>{if(e.target.closest('[onclick*="s-exc"]'))renderExc()});
+</script>
+</body></html>
