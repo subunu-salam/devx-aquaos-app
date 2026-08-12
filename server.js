@@ -158,6 +158,141 @@ app.get('/api/exceptions', (req, res) => {
   res.json(db.prepare(`SELECT d.id,d.exception,d.completed_at,c.name customer,c.address FROM deliveries d JOIN customers c ON c.id=d.customer_id WHERE d.status='exception' ORDER BY d.completed_at DESC`).all());
 });
 
+// ---------------- PROMOTIONS ----------------
+app.get('/api/promotions', (req, res) => res.json(db.prepare('SELECT * FROM promotions ORDER BY id').all()));
+app.post('/api/promotions', (req, res) => {
+  const b = req.body || {};
+  if (!b.name) return res.status(400).json({ ok: false, error: 'Name required' });
+  const info = db.prepare('INSERT INTO promotions(name,ptype,code,reward,ends,applies_to,portal_visible,redemptions) VALUES(?,?,?,?,?,?,?,0)')
+    .run(b.name, b.ptype || 'Custom', b.code || '', b.reward || '', b.ends || 'Ongoing', b.applies_to || 'All customers', b.portal_visible ? 1 : 0);
+  res.json({ ok: true, promotion: db.prepare('SELECT * FROM promotions WHERE id=?').get(info.lastInsertRowid) });
+});
+app.post('/api/promotions/:id/toggle', (req, res) => {
+  db.prepare('UPDATE promotions SET portal_visible = 1 - portal_visible WHERE id=?').run(req.params.id);
+  res.json({ ok: true, promotion: db.prepare('SELECT * FROM promotions WHERE id=?').get(req.params.id) });
+});
+
+// ---------------- PRODUCTS ----------------
+app.get('/api/products', (req, res) => res.json(db.prepare('SELECT * FROM products ORDER BY id').all()));
+app.post('/api/products', (req, res) => {
+  const b = req.body || {};
+  if (!b.name) return res.status(400).json({ ok: false, error: 'Name required' });
+  const info = db.prepare('INSERT INTO products(name,category,price,cost,stock,sold,in_store,description) VALUES(?,?,?,?,?,0,?,?)')
+    .run(b.name, b.category || 'Accessory', Number(b.price) || 0, Number(b.cost) || 0, Number(b.stock) || 0, b.in_store ? 1 : 0, b.description || '');
+  res.json({ ok: true, product: db.prepare('SELECT * FROM products WHERE id=?').get(info.lastInsertRowid) });
+});
+app.post('/api/products/:id/toggle', (req, res) => {
+  db.prepare('UPDATE products SET in_store = 1 - in_store WHERE id=?').run(req.params.id);
+  res.json({ ok: true, product: db.prepare('SELECT * FROM products WHERE id=?').get(req.params.id) });
+});
+
+// ---------------- INVENTORY ----------------
+app.get('/api/inventory', (req, res) => {
+  const depots = db.prepare('SELECT * FROM depots').all();
+  const pool = depots.reduce((a, d) => a + d.full_ready + d.empty_unwashed + d.in_wash + d.in_truck + d.at_customer + d.damaged, 0);
+  const atCust = depots.reduce((a, d) => a + d.at_customer, 0);
+  const damaged = depots.reduce((a, d) => a + d.damaged, 0);
+  res.json({ depots, pool, atCustomer: atCust, damaged, lossPct: pool ? +(damaged / pool * 100).toFixed(1) : 0 });
+});
+
+// ---------------- RECONCILIATION (today, per driver route) ----------------
+app.get('/api/reconciliation', (req, res) => {
+  const t = today();
+  const drivers = db.prepare('SELECT * FROM drivers').all();
+  const out = drivers.map(d => {
+    const rows = db.prepare('SELECT * FROM deliveries WHERE driver_id=? AND scheduled_date=?').all(d.id, t);
+    const loaded = rows.reduce((a, r) => a + (r.qty_requested || 0), 0);
+    const delivered = rows.filter(r => r.status === 'done').reduce((a, r) => a + (r.qty_delivered || 0), 0);
+    const empties = rows.filter(r => r.status === 'done').reduce((a, r) => a + (r.empties_collected || 0), 0);
+    const remaining = Math.max(0, loaded - delivered);
+    return { route: d.route, driver: d.name, truck: d.truck, loaded, delivered, empties, remaining, variance: Math.max(0, delivered - empties) };
+  });
+  res.json(out);
+});
+
+// ---------------- BILLING ----------------
+app.get('/api/billing', (req, res) => {
+  const plans = db.prepare('SELECT p.*, (SELECT COUNT(*) FROM customers c WHERE c.plan_id=p.id) active FROM plans p').all();
+  const mrr = plans.reduce((a, p) => a + p.price * p.active, 0);
+  const deposits = db.prepare('SELECT COALESCE(SUM(deposit_bottles),0)*30 s FROM customers').get().s;
+  const renewalsDue = db.prepare('SELECT COUNT(*) c FROM customers WHERE bottles_left <= 3').get().c;
+  const overdue = db.prepare("SELECT COUNT(*) c FROM customers WHERE status='payment due' OR bottles_left=0").get().c;
+  res.json({ mrr, deposits, renewalsDue, overdue, plans });
+});
+app.get('/api/customer/:id/ledger', (req, res) => {
+  res.json(db.prepare('SELECT * FROM ledger WHERE customer_id=? ORDER BY id DESC').all(req.params.id));
+});
+
+// ---------------- REPORTS ----------------
+app.get('/api/reports', (req, res) => {
+  const done = db.prepare("SELECT COUNT(*) c FROM deliveries WHERE status='done'").get().c;
+  const total = db.prepare('SELECT COUNT(*) c FROM deliveries').get().c;
+  const reused = db.prepare("SELECT COALESCE(SUM(empties_collected),0) s FROM deliveries").get().s;
+  res.json({ successRate: total ? +(done / total * 100).toFixed(1) : 0, deliveries: total, completed: done, bottlesReused: reused });
+});
+
+// ---------------- SCHEDULES ----------------
+app.get('/api/schedules', (req, res) => {
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const rows = db.prepare('SELECT zone, delivery_day, COUNT(*) stops FROM customers GROUP BY zone, delivery_day').all();
+  const zones = [...new Set(db.prepare('SELECT zone FROM customers').all().map(r => r.zone || 'Unzoned'))];
+  const out = zones.map(z => {
+    const days = {};
+    DAYS.forEach(d => { const r = rows.find(x => (x.zone || 'Unzoned') === z && x.delivery_day === d); days[d] = r ? r.stops : 0; });
+    return { zone: z, days };
+  });
+  res.json({ days: DAYS, rows: out });
+});
+
+// ---------------- ROUTES ----------------
+app.get('/api/routes', (req, res) => {
+  const t = today();
+  const drivers = db.prepare('SELECT * FROM drivers').all();
+  const out = drivers.map(d => {
+    const stops = db.prepare(`SELECT dl.*, c.name customer, c.address FROM deliveries dl JOIN customers c ON c.id=dl.customer_id WHERE dl.driver_id=? AND dl.scheduled_date=? ORDER BY dl.seq`).all(d.id, t);
+    const load = stops.reduce((a, s) => a + (s.qty_requested || 0), 0);
+    const done = stops.filter(s => s.status !== 'pending').length;
+    return { route: d.route, driver: d.name, truck: d.truck, cap_full: d.cap_full, cap_empty: d.cap_empty, stops, load, done, total: stops.length };
+  });
+  res.json(out);
+});
+
+// ---------------- SETTINGS ----------------
+app.get('/api/settings', (req, res) => {
+  const rows = db.prepare('SELECT * FROM settings').all();
+  const obj = {}; rows.forEach(r => obj[r.key] = r.value); res.json(obj);
+});
+app.put('/api/settings', (req, res) => {
+  const { key, value } = req.body || {};
+  if (!key) return res.status(400).json({ ok: false });
+  db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(key, String(value));
+  res.json({ ok: true });
+});
+
+// ---------------- ROLES ----------------
+app.get('/api/roles', (req, res) => res.json(db.prepare('SELECT * FROM roles ORDER BY id').all()));
+app.post('/api/roles/:id/toggle', (req, res) => {
+  const col = req.body.col; if (!['admin','ops','dispatch','driver'].includes(col)) return res.status(400).json({ ok: false });
+  db.prepare(`UPDATE roles SET ${col} = 1 - ${col} WHERE id=?`).run(req.params.id);
+  res.json({ ok: true, role: db.prepare('SELECT * FROM roles WHERE id=?').get(req.params.id) });
+});
+
+// ---------------- TRACEABILITY ----------------
+app.get('/api/batches', (req, res) => {
+  res.json(db.prepare('SELECT id,code,source,tds,bottled_date,line,units,delivered,lab FROM batches ORDER BY id DESC').all());
+});
+app.get('/api/batches/:id', (req, res) => {
+  const b = db.prepare('SELECT * FROM batches WHERE id=?').get(req.params.id);
+  if (!b) return res.status(404).json({ error: 'not found' });
+  b.lineage = JSON.parse(b.lineage || '[]'); res.json(b);
+});
+
+// ---------------- EXCEPTION RESOLVE ----------------
+app.post('/api/exception/:id/resolve', (req, res) => {
+  db.prepare("UPDATE deliveries SET status='resolved' WHERE id=?").run(req.params.id);
+  res.json({ ok: true });
+});
+
 function publicCustomer(c) {
   return { id: c.id, name: c.name, mobile: c.mobile, zone: c.zone, address: c.address,
     plan_name: c.plan_name, bottles_total: c.bottles_total, bottles_left: c.bottles_left,

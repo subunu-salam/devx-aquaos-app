@@ -41,6 +41,28 @@ CREATE TABLE IF NOT EXISTS requests(
   customer_id INTEGER, type TEXT, qty INTEGER, note TEXT,
   status TEXT DEFAULT 'open', created_at TEXT
 );
+CREATE TABLE IF NOT EXISTS promotions(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT, ptype TEXT, code TEXT, reward TEXT, ends TEXT, applies_to TEXT,
+  portal_visible INTEGER DEFAULT 1, redemptions INTEGER DEFAULT 0, status TEXT DEFAULT 'active'
+);
+CREATE TABLE IF NOT EXISTS products(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT, category TEXT, price INTEGER, cost INTEGER, stock INTEGER,
+  sold INTEGER DEFAULT 0, in_store INTEGER DEFAULT 1, description TEXT
+);
+CREATE TABLE IF NOT EXISTS depots(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT, full_ready INTEGER, empty_unwashed INTEGER, in_wash INTEGER, in_truck INTEGER, at_customer INTEGER, damaged INTEGER, capacity INTEGER
+);
+CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS batches(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT, source TEXT, tds TEXT, bottled_date TEXT, line TEXT, units INTEGER, delivered INTEGER, lab TEXT, lineage TEXT
+);
+CREATE TABLE IF NOT EXISTS roles(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, capability TEXT, admin INTEGER, ops INTEGER, dispatch INTEGER, driver INTEGER
+);
 `);
 
 // ---------- helpers ----------
@@ -89,6 +111,46 @@ if (db.prepare('SELECT COUNT(*) c FROM customers').get().c === 0) {
   const doneId = db.prepare(`INSERT INTO deliveries(customer_id,driver_id,scheduled_date,seq,qty_requested,qty_delivered,empties_collected,status,proof,completed_at) VALUES(?,?,?,?,?,?,?, 'done',1,?)`)
     .run(fatima, karim, past, 1, 2, 2, 2, past + 'T09:04:00').lastInsertRowid;
   db.prepare('INSERT INTO ledger(customer_id,delta,reason,created_at) VALUES(?,?,?,?)').run(fatima, -2, 'Delivery completed (2 bottles)', past + 'T09:04:00');
+
+  const promo = db.prepare('INSERT INTO promotions(name,ptype,code,reward,ends,applies_to,portal_visible,redemptions) VALUES(?,?,?,?,?,?,?,?)');
+  promo.run('Renew Now → 2 Free Bottles','Renewal offer','RENEW2FREE','2 free bottles','31 Aug 2026','All weekly plans',1,142);
+  promo.run('Spend AED 300, Save AED 40','Spend threshold','SAVE40','AED 40 off','Ongoing','All customers',1,96);
+  promo.run('Refer a Friend — AED 20 Each','Referral','FRIEND20','AED 20 credit','Ongoing','All customers',0,88);
+  promo.run('Plan + Electric Dispenser 15% Off','Bundle','COOLBUNDLE','15% off dispenser','15 Sep 2026','New sign-ups',0,54);
+  promo.run('Ramadan Family Pack','Seasonal','RAMADAN26','Discounted family plan','18 Feb 2027','Family plan',0,0);
+
+  const prod = db.prepare('INSERT INTO products(name,category,price,cost,stock,sold,in_store,description) VALUES(?,?,?,?,?,?,?,?)');
+  prod.run('Manual Pressure Dispenser','Dispenser — manual / pressure',25,14,340,128,1,'Hand-pump / push-type dispenser. No electricity — presses water straight from the 5-gal bottle.');
+  prod.run('Electric Water Dispenser','Dispenser — electric / motor',60,38,120,74,1,'Electric motor pump on a stand — automatic dispensing at the press of a button.');
+  prod.run('Hot & Cold Dispenser','Dispenser — hot & cold',899,610,28,12,1,'Floor-standing unit with hot, cold and room-temperature taps. Child-lock on hot tap.');
+  prod.run('Bottle Stand (steel)','Accessory',45,22,90,16,1,'Raised metal stand to mount a 5-gal bottle with a manual dispenser at counter height.');
+  prod.run('Hygiene Caps (12-pack)','Accessory',15,6,500,4,1,'Single-use sanitary seals for the bottle neck.');
+  prod.run('Dispenser Cleaning Kit','Accessory',30,12,60,2,0,'Brush + food-safe sanitiser sachets for periodic cleaning.');
+
+  const dep = db.prepare('INSERT INTO depots(name,full_ready,empty_unwashed,in_wash,in_truck,at_customer,damaged,capacity) VALUES(?,?,?,?,?,?,?,?)');
+  dep.run('Al Quoz',1842,760,320,410,3980,84,2560);
+  dep.run('Deira',640,512,210,288,2640,66,2050);
+  dep.run('Ras Al Khor',1320,430,180,360,2500,62,2000);
+
+  const setq = db.prepare('INSERT INTO settings(key,value) VALUES(?,?)');
+  [['company','PureWave Water'],['proof_required','on'],['qr_verification','on'],['online_payments','on'],['whatsapp_notifications','on'],['pin_login','on'],['cash_cod','off'],['bilingual','on'],['cutoff_time','20:00'],['deposit_per_bottle','30']].forEach(([k,v])=>setq.run(k,v));
+
+  const rq = db.prepare('INSERT INTO roles(capability,admin,ops,dispatch,driver) VALUES(?,?,?,?,?)');
+  rq.run('View customers',1,1,1,0); rq.run('Edit plans & billing',1,1,0,0); rq.run('Dispatch routes',1,1,1,0);
+  rq.run('Complete deliveries',1,0,0,1); rq.run('Approve reconciliation',1,1,0,0); rq.run('Manage tenant config',1,0,0,0);
+
+  const lineage = JSON.stringify([
+    {t:'Source intake · Hatta Spring', s:'07 Aug 04:10 · TDS & microbio check passed'},
+    {t:'Bottled · Line 2', s:'08 Aug 06:22 · seal & fill weight verified'},
+    {t:'Depot stock · Al Quoz', s:'08 Aug 09:40 · QA released to ready stock'},
+    {t:'Loaded · Truck DXB-07 · Route A', s:'10 Aug 07:12 · Karim S.'},
+    {t:'Delivered · Villa 24, Jumeirah', s:'10 Aug 09:04 · proof photo · entitlement consumed'},
+    {t:'Empty returned · wash cycle', s:'Awaiting next visit · asset in-field'}
+  ]);
+  db.prepare('INSERT INTO batches(code,source,tds,bottled_date,line,units,delivered,lab,lineage) VALUES(?,?,?,?,?,?,?,?,?)')
+    .run('B-2608-14','Hatta Spring','110 ppm','08 Aug 2026','Al Quoz line 2',1200,940,'Passed · Dubai Municipality',lineage);
+  db.prepare('INSERT INTO batches(code,source,tds,bottled_date,line,units,delivered,lab,lineage) VALUES(?,?,?,?,?,?,?,?,?)')
+    .run('B-2608-15','Hatta Spring','108 ppm','09 Aug 2026','Al Quoz line 1',1200,610,'Passed · Dubai Municipality',lineage);
 
   console.log('Seeded demo data. Customer PIN example Fatima 050 123 4567 / 4921 · Driver Karim 055 210 7788 / 7306');
 }

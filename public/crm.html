@@ -1,207 +1,1093 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>AquaOS — Operations CRM · DevX</title>
 <style>
-:root{--ink:#0b172a;--muted:#69788e;--line:#e7edf4;--bg:#f3f7fb;--nav:#07182a;--emerald:#159050;--emerald2:#3FB577;--aqua:#14b8a6;--cyan:#0ea5e9;--amber:#d97706;--red:#dc2626;--forest:#0C6236}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-button,input,select{font:inherit}button{cursor:pointer}
-.app{min-height:100vh;display:grid;grid-template-columns:250px 1fr}
-.sidebar{background:linear-gradient(180deg,var(--nav),#0a2130);color:#fff;padding:22px 15px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{display:flex;align-items:center;gap:11px;padding:0 6px 22px}
-.bm{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,var(--emerald2),#12a2c9);display:grid;place-items:center}
-.bm svg{width:22px;height:22px;stroke:#fff}.brand b{font-size:16px}.brand small{display:block;color:#9db2c9;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
-.navbtn{width:100%;border:0;background:transparent;color:#a9bad0;border-radius:11px;padding:11px 12px;display:flex;align-items:center;gap:11px;text-align:left;margin:2px 0;font-weight:600;font-size:13px}
-.navbtn svg{width:18px;height:18px;stroke:currentColor}
-.navbtn:hover{background:#102a42;color:#fff}.navbtn.active{background:linear-gradient(90deg,#123452,#0e2a41);color:#fff;box-shadow:inset 3px 0 0 var(--emerald2)}
+:root{
+  --ink:#0b172a; --muted:#69788e; --line:#e7edf4; --bg:#f3f7fb; --panel:#ffffff;
+  --nav:#07182a; --nav2:#0b2137;
+  --aqua:#14b8a6; --cyan:#0ea5e9; --blue:#2563eb;
+  --emerald:#159050; --emerald2:#3FB577; --mint:#7CFFB0; --forest:#0C6236;
+  --amber:#d97706; --red:#dc2626;
+  --shadow:0 18px 55px rgba(16,35,59,.10);
+  --r:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:264px 1fr}
+.sidebar{background:linear-gradient(180deg,var(--nav),#08192b 55%,#0a2130);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;overflow:auto}
+.sidebar::-webkit-scrollbar{width:6px}.sidebar::-webkit-scrollbar-thumb{background:#173049;border-radius:9px}
+.brand{display:flex;align-items:center;gap:12px;padding:0 6px 20px}
+.brandmark{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,var(--emerald2),#12a2c9);display:grid;place-items:center;box-shadow:0 8px 24px rgba(20,184,166,.28)}
+.brandmark svg{width:23px;height:23px;stroke:#fff}
+.brandtext b{font-size:17px;letter-spacing:.02em}
+.brandtext small{display:block;color:#9db2c9;margin-top:2px;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.tenant{display:flex;align-items:center;gap:9px;background:#0e2739;border:1px solid #173a52;border-radius:12px;padding:9px 11px;margin:2px 4px 14px}
+.tenant .logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(145deg,#0e7490,#0f9f97);display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff}
+.tenant b{font-size:11px;display:block}.tenant small{font-size:9px;color:#8ba4bd}
+.tenant svg{width:15px;height:15px;stroke:#7d97b2;margin-left:auto}
+.navlabel{color:#6d86a3;font-size:9px;text-transform:uppercase;letter-spacing:.14em;margin:14px 10px 6px;font-weight:800}
+.navbtn{width:100%;border:0;background:transparent;color:#a9bad0;border-radius:11px;padding:10px 11px;display:flex;align-items:center;gap:11px;text-align:left;margin:2px 0;font-weight:600;font-size:12.5px;position:relative}
+.navbtn svg{width:18px;height:18px;stroke:currentColor;flex:0 0 auto}
+.navbtn:hover{background:#102a42;color:#fff}
+.navbtn.active{background:linear-gradient(90deg,#123452,#0e2a41);color:#fff;box-shadow:inset 3px 0 0 var(--emerald2)}
+.navbtn .tag{margin-left:auto;background:#1c3f57;color:#8fd7cd;font-size:9px;font-weight:800;padding:2px 7px;border-radius:99px}
+.navbtn .tag.warn{background:#402a12;color:#f2b866}
+.sidefoot{margin-top:20px;border-top:1px solid #14304a;padding:15px 8px 0;color:#93a9c1;font-size:10px;line-height:1.6}
 .main{min-width:0}
-.topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:10}
-.topbar h1{font-size:16px;margin:0}.topbar p{margin:3px 0 0;font-size:11px;color:var(--muted)}
-.avatar{display:flex;align-items:center;gap:9px}.avatar .pic{width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,#0b2540,#1d4e6c);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800}
-.content{padding:24px 26px 50px;max-width:1400px}
-.page{display:none}.page.active{display:block}
-.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
-.hero h2{margin:4px 0 4px;font-size:24px;letter-spacing:-.02em}.hero p{margin:0;color:var(--muted);font-size:12.5px}
+.topbar{height:72px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:20}
+.search{display:flex;align-items:center;gap:9px;background:#f0f5f9;border:1px solid #e5edf4;border-radius:12px;padding:9px 13px;width:340px;max-width:38vw}
+.search svg{width:16px;height:16px;stroke:#8093a8}.search input{border:0;background:transparent;outline:0;font-size:12.5px;width:100%;color:var(--ink)}
+.topactions{display:flex;align-items:center;gap:9px}
+.iconbtn{width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:12px;display:grid;place-items:center;position:relative}
+.iconbtn svg{width:18px;height:18px;stroke:#53647a}
+.iconbtn .dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff}
+.avatar{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:12px;padding:5px 11px 5px 5px;background:#fff}
+.avatar .pic{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#0b2540,#1d4e6c);color:#fff;display:grid;place-items:center;font-size:10px;font-weight:800}
+.avatar b{font-size:11px}.avatar small{display:block;font-size:9px;color:var(--muted)}
+.content{padding:24px 26px 40px;max-width:1560px;margin:0 auto}
+.page{display:none;animation:fade .3s ease}.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hero-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
 .eyebrow{color:var(--emerald);font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.13em}
-.primary{background:linear-gradient(135deg,var(--emerald),#0f9f97);color:#fff;border:0;border-radius:11px;padding:11px 15px;font-weight:800;font-size:12.5px;display:inline-flex;align-items:center;gap:8px}
-.primary svg{width:16px;height:16px;stroke:#fff}
-.ghost{background:#fff;border:1px solid var(--line);color:#4e5f74;border-radius:11px;padding:10px 13px;font-weight:700;font-size:12px}
+.hero-row h2{margin:6px 0 5px;font-size:25px;letter-spacing:-.03em}
+.hero-row p{margin:0;color:var(--muted);font-size:12.5px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.primary,.secondary,.ghost,.danger{border:0;border-radius:11px;padding:10px 14px;font-weight:750;font-size:12px;display:inline-flex;align-items:center;gap:8px}
+.primary{background:linear-gradient(135deg,var(--emerald),#0f9f97);color:#fff;box-shadow:0 8px 18px rgba(15,159,151,.22)}
+.secondary{background:#e7f4ef;color:var(--forest)}
+.ghost{background:#fff;color:#4e5f74;border:1px solid var(--line)}
+.danger{background:#fff0f0;color:#b42318}
+.primary svg,.secondary svg,.ghost svg,.danger svg{width:15px;height:15px;stroke:currentColor}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
-.card{background:#fff;border:1px solid #e8eef4;border-radius:16px;box-shadow:0 7px 24px rgba(18,43,70,.045)}
-.kpi{padding:17px}.kpi small{color:var(--muted);font-size:11px;font-weight:600}.kpi strong{display:block;font-size:26px;margin-top:10px;letter-spacing:-.02em}
-.kpi .ic{float:right;width:38px;height:38px;border-radius:11px;background:#e9f7f4;display:grid;place-items:center}.kpi .ic svg{width:19px;height:19px;stroke:#0f8d84}
-.cardhead{padding:16px 18px 11px;display:flex;justify-content:space-between;align-items:center}.cardhead h3{margin:0;font-size:13.5px}.cardhead span{font-size:11px;color:var(--muted)}
-.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;font-size:12px}
-.table th{text-align:left;color:#7a899a;font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:11px 14px;border-bottom:1px solid var(--line)}
-.table td{padding:13px 14px;border-bottom:1px solid #eef2f5;white-space:nowrap}.table tr:last-child td{border-bottom:0}.table tbody tr:hover{background:#f6fafc}
-.badge{display:inline-flex;border-radius:999px;padding:4px 9px;font-size:9.5px;font-weight:850}
-.badge.green{background:#e7f8f1;color:#08775b}.badge.amber{background:#fff5e5;color:#9b5d08}.badge.red{background:#ffeceb;color:#a8362e}.badge.blue{background:#e8f2ff;color:#1558b0}.badge.gray{background:#eef2f5;color:#617183}
+.card{background:var(--panel);border:1px solid #e8eef4;border-radius:var(--r);box-shadow:0 7px 24px rgba(18,43,70,.045)}
+.kpi{padding:17px}
+.kpitop{display:flex;justify-content:space-between;align-items:center}
+.kpi-icon{width:38px;height:38px;border-radius:12px;background:#e9f7f4;display:grid;place-items:center}
+.kpi-icon svg{width:19px;height:19px;stroke:#0f8d84}
+.kpi-icon.em{background:#e7f6ee}.kpi-icon.em svg{stroke:var(--emerald)}
+.kpi-icon.cy{background:#e6f4fd}.kpi-icon.cy svg{stroke:var(--cyan)}
+.kpi-icon.am{background:#fdf1e3}.kpi-icon.am svg{stroke:var(--amber)}
+.kpi small{color:var(--muted);font-weight:600;font-size:11px}
+.kpi strong{display:block;font-size:26px;margin-top:11px;letter-spacing:-.03em}
+.delta{font-size:11px;color:var(--emerald);font-weight:800;margin-top:4px}.delta.warn{color:var(--amber)}.delta.down{color:var(--red)}
+.grid2{display:grid;grid-template-columns:1.5fr .9fr;gap:16px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.cardhead{padding:16px 18px 11px;display:flex;align-items:center;justify-content:space-between}
+.cardhead h3{font-size:13.5px;margin:0}.cardhead span{font-size:11px;color:var(--muted)}
+.cardhead a{font-size:11px;color:var(--emerald);font-weight:800;text-decoration:none}
+.cardbody{padding:0 18px 18px}
+.route-map{height:300px;border-radius:14px;background:radial-gradient(circle at 18% 30%,rgba(14,165,233,.15),transparent 12%),radial-gradient(circle at 72% 28%,rgba(20,184,166,.14),transparent 13%),radial-gradient(circle at 55% 75%,rgba(21,144,80,.12),transparent 12%),linear-gradient(130deg,#eef5f9,#f8fbfd);position:relative;overflow:hidden;border:1px solid #e4edf3}
+.road{position:absolute;height:2px;background:#d3dfe8;transform-origin:left center}
+.road.r1{width:75%;left:5%;top:28%;transform:rotate(13deg)}.road.r2{width:68%;left:15%;top:66%;transform:rotate(-12deg)}.road.r3{width:51%;left:43%;top:8%;transform:rotate(63deg)}.road.r4{width:44%;left:30%;top:50%;transform:rotate(28deg)}
+.pin{position:absolute;width:26px;height:26px;border-radius:9px;background:#fff;border:1px solid #d9e5ec;box-shadow:0 5px 15px rgba(28,56,84,.13);display:grid;place-items:center;font-size:9px;font-weight:800;color:#0e8f89}
+.pin.active{background:var(--emerald);color:#fff;border-color:var(--emerald)}
+.pin.done{background:#0e8f89;color:#fff;border-color:#0e8f89}
+.route-line{position:absolute;left:18%;top:27%;width:54%;height:48%;border-left:3px dashed #44b8b0;border-bottom:3px dashed #44b8b0;border-radius:0 0 0 60px;opacity:.7}
+.mapbadge{position:absolute;right:12px;top:12px;background:rgba(255,255,255,.92);border:1px solid #e0e9ef;padding:8px 11px;border-radius:11px;font-size:10px;font-weight:800;color:#42556c}
+.mapbadge b{color:var(--emerald)}
+.list{display:flex;flex-direction:column}
+.rowitem{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #eef2f6}.rowitem:last-child{border-bottom:0}
+.rowicon{width:34px;height:34px;border-radius:11px;background:#eef5f8;display:grid;place-items:center;flex:0 0 auto}.rowicon svg{width:16px;height:16px;stroke:#52718a}
+.rowtext{min-width:0;flex:1}.rowtext b{display:block;font-size:12px}.rowtext small{display:block;color:var(--muted);font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:9px;font-weight:850;letter-spacing:.03em}
+.badge.green{background:#e7f8f1;color:#08775b}.badge.em{background:#e7f6ee;color:var(--forest)}.badge.blue{background:#e8f2ff;color:#1558b0}.badge.amber{background:#fff5e5;color:#9b5d08}.badge.red{background:#ffeceb;color:#a8362e}.badge.gray{background:#eef2f5;color:#617183}
+.progress{height:7px;background:#edf2f5;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--emerald),var(--aqua));border-radius:99px}
+.mini-chart{height:135px;display:flex;align-items:end;gap:7px;padding-top:10px}
+.bar{flex:1;background:linear-gradient(180deg,var(--aqua),#a5dfd9);border-radius:6px 6px 2px 2px;min-height:9px;position:relative}
+.bar.hi{background:linear-gradient(180deg,var(--emerald),#7fd0a6)}
+.axis{display:flex;justify-content:space-between;color:#8390a1;font-size:9px;margin-top:6px}
+.tablewrap{overflow:auto}
+.table{width:100%;border-collapse:collapse;font-size:11.5px}
+.table th{text-align:left;color:#7a899a;font-size:9px;text-transform:uppercase;letter-spacing:.07em;padding:10px 11px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+.table td{padding:12px 11px;border-bottom:1px solid #eef2f5;white-space:nowrap}.table tr:last-child td{border-bottom:0}
+.table tbody tr:hover{background:#f6fafc}
 .person{display:flex;align-items:center;gap:9px}.person .pic{width:30px;height:30px;border-radius:9px;background:linear-gradient(145deg,#d8e7ef,#edf5f8);display:grid;place-items:center;font-size:9px;font-weight:850;color:#476077}
-.progress{height:7px;background:#edf2f5;border-radius:99px;overflow:hidden;width:120px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--emerald),var(--aqua))}
-.modal{position:fixed;inset:0;background:rgba(4,15,26,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:40}.modal.open{display:flex}
-.modalbox{background:#fff;width:480px;max-width:100%;border-radius:20px;box-shadow:0 18px 55px rgba(16,35,59,.2);padding:22px;max-height:92vh;overflow:auto}
-.modalbox h3{margin:0 0 5px;font-size:18px}.modalbox p{color:var(--muted);font-size:11.5px;line-height:1.6;margin:0}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{margin-top:12px}.field.full{grid-column:1/-1}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:11px;color:#5c6d81;font-weight:700;display:inline-flex;align-items:center;gap:7px}
+.filter svg{width:14px;height:14px;stroke:#7c8da0}
+.filter.active{background:var(--emerald);color:#fff;border-color:var(--emerald)}
+.seg{display:flex;background:#eef3f7;padding:3px;border-radius:11px;gap:2px}
+.seg button{border:0;background:transparent;color:#68788e;padding:7px 12px;border-radius:8px;font-weight:750;font-size:11px}
+.seg button.active{background:#fff;color:var(--ink);box-shadow:0 3px 9px rgba(16,35,59,.09)}
+.ledger{display:grid;gap:8px}
+.led{display:grid;grid-template-columns:34px 1fr auto;gap:11px;align-items:center;padding:11px;border:1px solid #eef2f6;border-radius:13px}
+.led .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center}
+.led .ic svg{width:16px;height:16px}
+.led.plus .ic{background:#e7f6ee}.led.plus .ic svg{stroke:var(--emerald)}
+.led.minus .ic{background:#e6f4fd}.led.minus .ic svg{stroke:var(--cyan)}
+.led.warn .ic{background:#fdf1e3}.led.warn .ic svg{stroke:var(--amber)}
+.led b{font-size:12px}.led small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.led .amt{font-size:13px;font-weight:850}.led .amt.pos{color:var(--emerald)}.led .amt.neg{color:var(--cyan)}
+.recon{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.reconbox{border:1px solid #e9eff4;border-radius:14px;padding:14px;background:#f9fcfd;text-align:center;position:relative}
+.reconbox small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+.reconbox strong{display:block;font-size:24px;margin-top:8px;letter-spacing:-.03em}
+.reconbox .sub{font-size:10px;color:var(--muted);margin-top:3px}
+.reconarrow{position:absolute;right:-11px;top:50%;transform:translateY(-50%);z-index:3;width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid #e0e8ef;display:grid;place-items:center}
+.reconarrow svg{width:12px;height:12px;stroke:#7c8da0}
+.exception{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:13px;border:1px solid #eef2f6;border-radius:14px;margin-bottom:9px}
+.exception .ic{width:40px;height:40px;border-radius:12px;background:#fdf0ef;display:grid;place-items:center}
+.exception .ic svg{width:19px;height:19px;stroke:var(--red)}
+.exception.amber .ic{background:#fdf3e5}.exception.amber .ic svg{stroke:var(--amber)}
+.exception b{font-size:12.5px}.exception small{display:block;color:var(--muted);font-size:10.5px;margin-top:3px}
+.perm-grid{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:0;border:1px solid #e9eff4;border-radius:14px;overflow:hidden}
+.perm-grid>div{padding:12px 14px;border-bottom:1px solid #eef2f5;font-size:11.5px;display:flex;align-items:center;gap:8px}
+.perm-grid .h{background:#f6fafc;font-weight:800;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#7a899a}
+.check{width:19px;height:19px;border-radius:6px;background:var(--emerald);display:grid;place-items:center;margin:auto}
+.check svg{width:12px;height:12px;stroke:#fff}
+.nocheck{width:19px;height:19px;border-radius:6px;background:#eef2f5;margin:auto}
+.qr{width:120px;height:120px;border-radius:14px;background:#fff;border:1px solid #e6edf3;display:grid;place-items:center;padding:12px}
+.qr svg{width:100%;height:100%}
+.trace-step{display:grid;grid-template-columns:26px 1fr;gap:12px}
+.trace-step .rail{display:grid;place-items:start;position:relative}
+.trace-step .rail .d{width:14px;height:14px;border-radius:50%;background:var(--emerald);border:3px solid #d9f0e4;margin-top:3px}
+.trace-step .rail:after{content:"";position:absolute;left:6px;top:18px;bottom:-14px;width:2px;background:#e2ebe6}
+.trace-step:last-child .rail:after{display:none}
+.trace-step .body{padding-bottom:16px}
+.trace-step .body b{font-size:12px}.trace-step .body small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.toggle{width:38px;height:22px;border-radius:99px;background:var(--emerald);position:relative;border:0;flex:0 0 auto}
+.toggle:after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;right:3px;transition:.2s}
+.toggle.off{background:#cdd8e2}.toggle.off:after{right:19px}
+.section-title{font-size:13px;margin:20px 0 10px;color:#334155;font-weight:800}
+.hidden{display:none!important}
+.promo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.promo-card{border:1px solid #e8eef4;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 7px 22px rgba(18,43,70,.05);display:flex;flex-direction:column}
+.promo-top{padding:16px;color:#fff;position:relative;overflow:hidden}
+.promo-top.a{background:linear-gradient(135deg,var(--emerald),#0f9f97)}
+.promo-top.b{background:linear-gradient(135deg,#0b6ea8,#0d9488)}
+.promo-top.c{background:linear-gradient(135deg,#7a52e0,#a26be6)}
+.promo-top.d{background:linear-gradient(135deg,#d97706,#eaa13a)}
+.promo-top.e{background:linear-gradient(135deg,#0c3f53,#12667a)}
+.promo-top:after{content:"";position:absolute;right:-24px;top:-24px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.10)}
+.promo-top .ptype{font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.1em;opacity:.9;position:relative;z-index:2}
+.promo-top h3{margin:9px 0 4px;font-size:18px;position:relative;z-index:2;letter-spacing:-.02em}
+.promo-top p{margin:0;font-size:11px;opacity:.92;position:relative;z-index:2;line-height:1.5}
+.promo-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:10px}
+.promo-body .code{font-family:ui-monospace,monospace;font-size:11px;font-weight:800;background:#f1f6f9;border:1px dashed #cfdde7;border-radius:8px;padding:6px 9px;color:#3d5064;text-align:center}
+.promo-body .stat{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.promo-body .stat b{color:var(--ink)}
+.promo-foot{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid #eef2f6;font-size:11px}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.prod-card{border:1px solid #e8eef4;border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(18,43,70,.05);overflow:hidden;display:flex;flex-direction:column}
+.prodimg{height:130px;display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#eaf6fd,#f4f9fc);border-bottom:1px solid #eef3f7;position:relative}
+.prodimg svg{width:58px;height:58px;stroke:#0e7d92}
+.prodimg .flag{position:absolute;top:10px;left:10px;font-size:9px;font-weight:850;padding:4px 8px;border-radius:99px;background:#e7f6ee;color:var(--forest)}
+.prodimg .flag.hot{background:#fff0e6;color:#b45309}
+.prod-in{padding:14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.prod-in h4{margin:0;font-size:13px}
+.prod-in .desc{font-size:10.5px;color:var(--muted);line-height:1.45;flex:1}
+.prod-in .price{font-size:17px;font-weight:850;letter-spacing:-.02em}
+.prod-in .price small{font-size:10px;color:var(--muted);font-weight:600}
+.prod-foot{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-top:1px solid #eef2f6}
+.prod-foot small{font-size:10px;color:var(--muted)}
+@media(max-width:1150px){.promo-grid,.prod-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:820px){.promo-grid,.prod-grid{grid-template-columns:1fr}}
+.modal{position:fixed;inset:0;background:rgba(4,15,26,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:60}.modal.open{display:flex}
+.modalbox{background:#fff;width:460px;max-width:100%;border-radius:20px;box-shadow:var(--shadow);padding:22px;max-height:90vh;overflow:auto}
+.modalbox h3{margin:0 0 6px;font-size:17px}.modalbox p{color:var(--muted);font-size:11.5px;line-height:1.6;margin:0}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.field{margin-top:12px}.field.full{grid-column:1/-1}
 .field label{display:block;font-size:9px;color:#6b7a90;font-weight:800;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
-.field input,.field select{width:100%;border:1px solid #dfe7ed;border-radius:11px;padding:11px;background:#fff;font-size:12.5px;outline:0}
+.field input,.field select{width:100%;border:1px solid #dfe7ed;border-radius:11px;padding:10px 11px;background:#fff;font-size:12px;outline:0}
 .field input:focus,.field select:focus{border-color:var(--emerald)}
 .modalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
-.result{background:linear-gradient(120deg,#e7f6ee,#e9f7f4);border:1px solid #cdeadd;border-radius:15px;padding:16px;margin-top:6px}
-.pinbig{font-size:34px;font-weight:850;letter-spacing:.28em;color:var(--forest);text-align:center;margin:6px 0 12px}
-.msgbox{background:#fff;border:1px solid #d9eee4;border-radius:12px;padding:12px;font-size:11.5px;color:#33463c;white-space:pre-wrap;line-height:1.55;max-height:190px;overflow:auto}
-.wa{background:#25D366;color:#fff;border:0;border-radius:11px;padding:12px;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;flex:1}
-.wa svg{width:17px;height:17px;stroke:#fff}
-.toast{position:fixed;right:22px;bottom:22px;background:#0e2234;color:#fff;border-radius:12px;padding:12px 15px;font-size:12px;display:flex;gap:8px;align-items:center;z-index:80;opacity:0;transform:translateY(14px);transition:.25s;pointer-events:none}
-.toast.show{opacity:1;transform:none}.toast svg{width:16px;height:16px;stroke:var(--emerald2)}
-@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.kpis{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}}
-</style></head>
+.toast{position:fixed;right:24px;bottom:24px;background:#0e2234;color:#fff;border-radius:13px;padding:13px 15px;box-shadow:var(--shadow);font-size:12px;display:flex;align-items:center;gap:9px;z-index:80;transform:translateY(20px);opacity:0;transition:.25s;pointer-events:none}
+.toast.show{transform:none;opacity:1}
+.toast svg{width:17px;height:17px;stroke:var(--mint)}
+.callout{display:flex;gap:11px;padding:13px 15px;border-radius:13px;background:linear-gradient(120deg,#e7f6ee,#e9f7f4);border:1px solid #cdeadd;margin-bottom:16px}
+.callout svg{width:20px;height:20px;stroke:var(--emerald);flex:0 0 auto}
+.callout b{font-size:12px;color:var(--forest)}.callout p{margin:3px 0 0;font-size:11px;color:#3f6b57;line-height:1.5}
+.menuwrap{position:relative}
+@media(max-width:1150px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}.recon{grid-template-columns:1fr 1fr}.perm-grid{font-size:10px}}
+@media(max-width:820px){.app{grid-template-columns:1fr}.sidebar{display:none}.search{display:none}.content{padding:16px}.kpis{grid-template-columns:1fr 1fr}.hero-row{flex-direction:column;align-items:flex-start}.recon{grid-template-columns:1fr}.reconarrow{display:none}}
+</style>
+</head>
 <body>
 <svg width="0" height="0" style="position:absolute"><defs>
-<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2s6 6.2 6 11a6 6 0 1 1-12 0c0-4.8 6-11 6-11Z" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2s6 6.2 6 11a6 6 0 1 1-12 0c0-4.8 6-11 6-11Z" fill="none" stroke-width="1.7"/><path d="M9.5 14.3c.4 1.3 1.3 2.1 2.6 2.4" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
 <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/><rect x="14" y="3" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/><rect x="3" y="14" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/><rect x="14" y="14" width="7" height="7" rx="1.6" fill="none" stroke-width="1.7"/></symbol>
-<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="none" stroke-width="1.7"/><path d="M3.5 20c.6-3.4 3-5 5.5-5s4.9 1.6 5.5 5M16 5.2A3.2 3.2 0 0 1 16 11M17 15c2 .5 3.5 2 4 5" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
-<symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11z" fill="none" stroke-width="1.7"/><path d="M13.5 9.5h4l3 3v3h-7z" fill="none" stroke-width="1.7"/><circle cx="6.5" cy="17.5" r="2" fill="none" stroke-width="1.7"/><circle cx="17" cy="17.5" r="2" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="none" stroke-width="1.7"/><path d="M3.5 20c.6-3.4 3-5 5.5-5s4.9 1.6 5.5 5" fill="none" stroke-width="1.7" stroke-linecap="round"/><path d="M16 5.2A3.2 3.2 0 0 1 16 11M17 15c2 .5 3.5 2 4 5" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
 <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.4" fill="none" stroke-width="1.7"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4" fill="none" stroke-width="1.7"/><circle cx="18" cy="18" r="2.4" fill="none" stroke-width="1.7"/><path d="M8.4 6H14a3.5 3.5 0 0 1 0 7H9a3.5 3.5 0 0 0 0 7h6.6" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11z" fill="none" stroke-width="1.7"/><path d="M13.5 9.5h4l3 3v3h-7z" fill="none" stroke-width="1.7"/><circle cx="6.5" cy="17.5" r="2" fill="none" stroke-width="1.7"/><circle cx="17" cy="17.5" r="2" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 7l8 4 8-4M12 11v10" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-recycle" viewBox="0 0 24 24"><path d="M7 8 4 13l2.5 1.5M4 13l1.8-6.5 3 .4" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6l3 5-2.6 1.4M18 11l1.2 6.4-3 .2" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 19H8l-.4-3" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 19h18Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 10v4M12 16.6v.1" fill="none" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.4" fill="none" stroke-width="1.7"/><path d="M3 9.5h18M6.5 14.5h4" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 4v16h16" fill="none" stroke-width="1.7" stroke-linecap="round"/><path d="M8 14l3-3 3 2 4-5" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" fill="none" stroke-width="1.7"/><rect x="14" y="3" width="7" height="7" rx="1" fill="none" stroke-width="1.7"/><rect x="3" y="14" width="7" height="7" rx="1" fill="none" stroke-width="1.7"/><path d="M14 14h3v3M20 14v.01M14 20h3M20 17v4" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke-width="1.7"/><path d="M20 20l-4-4" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke-width="1.9" stroke-linecap="round"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 6.5" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/></symbol>
-<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke-width="1.7"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-chevd" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.4" fill="none" stroke-width="1.7"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke-width="1.7"/><path d="M12 7.5V12l3 2" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4" fill="none" stroke-width="1.7"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-cash" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke-width="1.7"/><path d="M12 7v10M9.5 9.5c0-1.2 1.1-1.8 2.5-1.8s2.5.7 2.5 1.8-1.1 1.6-2.5 1.6-2.5.6-2.5 1.8S10.6 16 12 16s2.5-.7 2.5-1.8" fill="none" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 9 12 5 20 5c0 8-4 15-14 15-.5-4 1-7 4-9" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke-width="1.7"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2 2M16.8 16.8l2 2M18.8 5.2l-2 2M7.2 16.8l-2 2" fill="none" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M4 4h7l9 9-7 7-9-9Z" fill="none" stroke-width="1.7" stroke-linejoin="round"/><circle cx="8.2" cy="8.2" r="1.5"/></symbol>
+<symbol id="i-store" viewBox="0 0 24 24"><path d="M4 4h16l1 5H3Z" fill="none" stroke-width="1.6" stroke-linejoin="round"/><path d="M4.5 9v11h15V9M9 20v-6h6v6" fill="none" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1.5" fill="none" stroke-width="1.6"/><path d="M4 13h16M12 9v11" fill="none" stroke-width="1.6"/><path d="M12 9C11 5 6.5 5 7.4 8c.4 1.2 3 1 4.6 1 1.6 0 4.2.2 4.6-1 .9-3-3.6-3-4.6 1Z" fill="none" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+<symbol id="i-disp" viewBox="0 0 24 24"><path d="M9.5 3h5l-.8 4h-3.4Z" fill="none" stroke-width="1.5" stroke-linejoin="round"/><rect x="7" y="7" width="10" height="14" rx="2" fill="none" stroke-width="1.6"/><path d="M7 13.5h10M11 16.5h2" fill="none" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 13h5l-1 8 8-11h-5Z" fill="none" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+<symbol id="i-hand" viewBox="0 0 24 24"><path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11m0-1V5a1.5 1.5 0 0 1 3 0v6m0-.5V6.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7s-6-2.5-6-6v-1a1.5 1.5 0 0 1 3 0Z" fill="none" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></symbol>
 </defs></svg>
 
 <div class="app">
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="brand"><div class="bm"><svg><use href="#i-drop"/></svg></div><div><b>AquaOS</b><small>by DevX</small></div></div>
+    <div class="brand">
+      <div class="brandmark"><svg><use href="#i-drop"/></svg></div>
+      <div class="brandtext"><b>AquaOS</b><small>by DevX</small></div>
+    </div>
+    <div class="tenant">
+      <div class="logo">PW</div>
+      <div><b>PureWave Water LLC</b><small>Dubai · 3 depots</small></div>
+      <svg><use href="#i-chevd"/></svg>
+    </div>
+    <div class="navlabel">Operate</div>
     <button class="navbtn active" onclick="go('dashboard',this)"><svg><use href="#i-grid"/></svg>Dashboard</button>
     <button class="navbtn" onclick="go('customers',this)"><svg><use href="#i-users"/></svg>Customers</button>
-    <button class="navbtn" onclick="go('drivers',this)"><svg><use href="#i-truck"/></svg>Drivers</button>
-    <button class="navbtn" onclick="go('deliveries',this)"><svg><use href="#i-cal"/></svg>Deliveries</button>
-    <button class="navbtn" onclick="go('exceptions',this)"><svg><use href="#i-alert"/></svg>Exceptions</button>
-    <div style="margin-top:20px;border-top:1px solid #14304a;padding:14px 8px 0;color:#93a9c1;font-size:10px;line-height:1.6"><b style="color:#cfe0ee">Live database</b><br/><span id="dbstatus">connecting…</span></div>
+    <button class="navbtn" onclick="go('schedules',this)"><svg><use href="#i-cal"/></svg>Schedules</button>
+    <button class="navbtn" onclick="go('routes',this)"><svg><use href="#i-route"/></svg>Routes &amp; Dispatch<span class="tag">6 live</span></button>
+    <div class="navlabel">Assets</div>
+    <button class="navbtn" onclick="go('fleet',this)"><svg><use href="#i-truck"/></svg>Fleet &amp; Drivers</button>
+    <button class="navbtn" onclick="go('inventory',this)"><svg><use href="#i-box"/></svg>Bottle Inventory</button>
+    <button class="navbtn" onclick="go('recon',this)"><svg><use href="#i-recycle"/></svg>Reconciliation</button>
+    <button class="navbtn" onclick="go('exceptions',this)"><svg><use href="#i-alert"/></svg>Exceptions<span class="tag warn">4</span></button>
+    <div class="navlabel">Business</div>
+    <button class="navbtn" onclick="go('billing',this)"><svg><use href="#i-card"/></svg>Billing &amp; Plans</button>
+    <button class="navbtn" onclick="go('promos',this)"><svg><use href="#i-gift"/></svg>Promotions<span class="tag">5</span></button>
+    <button class="navbtn" onclick="go('products',this)"><svg><use href="#i-store"/></svg>Products &amp; Store</button>
+    <button class="navbtn" onclick="go('reports',this)"><svg><use href="#i-chart"/></svg>Reports</button>
+    <button class="navbtn" onclick="go('trace',this)"><svg><use href="#i-qr"/></svg>Traceability</button>
+    <button class="navbtn" onclick="go('settings',this)"><svg><use href="#i-shield"/></svg>Roles &amp; Settings</button>
+    <div class="sidefoot">
+      <b style="color:#cfe0ee">AquaOS Enterprise</b><br/>
+      Operating System for Returnable Water Delivery.<br/>
+      <span style="color:#7fd0a6">● All depots synced · 12:41</span>
+    </div>
   </aside>
+
+  <!-- MAIN -->
   <div class="main">
-    <div class="topbar"><div><h1 id="pt">Operations Dashboard</h1><p id="ps">Live data from your AquaOS database</p></div><div class="avatar"><div class="pic">RA</div></div></div>
+    <div class="topbar">
+      <div class="search"><svg><use href="#i-search"/></svg><input placeholder="Search customers, coupons, bottles, routes…"/></div>
+      <div class="topactions">
+        <button class="iconbtn" onclick="toast('You have 4 open exceptions')"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <button class="iconbtn" onclick="go('settings',null)"><svg><use href="#i-cog"/></svg></button>
+        <div class="avatar"><div class="pic">RA</div><div><b>Rania A.</b><small>Operations Lead</small></div></div>
+      </div>
+    </div>
+
     <div class="content">
 
+      <!-- ============ DASHBOARD ============ -->
       <section id="dashboard" class="page active">
-        <div class="hero"><div><div class="eyebrow">Live</div><h2>Operations Dashboard</h2><p>Real counts from the database — updates as you create customers and drivers complete deliveries.</p></div><button class="primary" onclick="openNew()"><svg><use href="#i-plus"/></svg>New Customer</button></div>
-        <div class="kpis" id="kpis"></div>
-        <div class="card"><div class="cardhead"><h3>Today's deliveries</h3><span id="delcount"></span></div><div class="tablewrap"><table class="table" id="delTable"><thead><tr><th>Seq</th><th>Customer</th><th>Address</th><th>Driver route</th><th>Qty</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="hero-row">
+          <div>
+            <div class="eyebrow">Tuesday · 11 Aug 2026</div>
+            <h2>Operations Dashboard</h2>
+            <p>Live view of today's deliveries, bottle flow and customer requests across all depots.</p>
+          </div>
+          <div class="btnrow">
+            <button class="ghost" onclick="toast('Exported daily ops CSV')"><svg><use href="#i-down"/></svg>Export</button>
+            <button class="primary" onclick="openModal('mCustomer')"><svg><use href="#i-plus"/></svg>New Customer</button>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="card kpi"><div class="kpitop"><small>Deliveries today</small><span class="kpi-icon em"><svg><use href="#i-truck"/></svg></span></div><strong>318</strong><div class="delta">▲ 214 completed · 104 pending</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Bottles delivered</small><span class="kpi-icon cy"><svg><use href="#i-drop"/></svg></span></div><strong>742</strong><div class="delta">▲ 8% vs last Tue</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Empties collected</small><span class="kpi-icon"><svg><use href="#i-recycle"/></svg></span></div><strong>689</strong><div class="delta warn">53 outstanding today</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Cash collected</small><span class="kpi-icon am"><svg><use href="#i-cash"/></svg></span></div><strong>AED 9,240</strong><div class="delta">▲ 12 online renewals</div></div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="cardhead"><h3>Live route map — Dubai Marina zone</h3><a href="#" onclick="go('routes',null);return false">Open dispatch →</a></div>
+            <div class="cardbody">
+              <div class="route-map">
+                <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div><div class="road r4"></div>
+                <div class="route-line"></div>
+                <div class="pin done" style="left:16%;top:24%">1</div>
+                <div class="pin done" style="left:38%;top:33%">2</div>
+                <div class="pin active" style="left:54%;top:52%">3</div>
+                <div class="pin" style="left:70%;top:44%">4</div>
+                <div class="pin" style="left:66%;top:70%">5</div>
+                <div class="mapbadge">Truck <b>DXB-07</b> · Karim · <b>ETA 12:58</b></div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:12px;font-size:11px;color:var(--muted)">
+                <span><span class="badge green">2 done</span></span>
+                <span><span class="badge em">1 en route</span></span>
+                <span><span class="badge gray">2 upcoming</span></span>
+                <span style="margin-left:auto">Route load: 44 full / 40 empty capacity</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Requests before cutoff</h3><span>Cutoff 20:00</span></div>
+            <div class="cardbody">
+              <div class="callout"><svg><use href="#i-route"/></svg><div><b>Auto-fed to dispatch</b><p>7 quantity changes recalculated tomorrow's truck load: +11 bottles on Route A.</p></div></div>
+              <div class="list">
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-drop"/></svg></div><div class="rowtext"><b>Villa 24, Jumeirah — +2 bottles</b><small>Fatima H. · tomorrow 09:00 window</small></div><span class="badge em">+2</span></div>
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-cal"/></svg></div><div class="rowtext"><b>Apt 1203, Marina — skip</b><small>Vacation until 18 Aug</small></div><span class="badge amber">Skip</span></div>
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-drop"/></svg></div><div class="rowtext"><b>Office 5F, Business Bay — extra delivery</b><small>Ahmed R. · same-day requested</small></div><span class="badge blue">Extra</span></div>
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-drop"/></svg></div><div class="rowtext"><b>Villa 9, Al Barsha — +1 bottle</b><small>Auto-applied to load</small></div><span class="badge em">+1</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid3">
+          <div class="card">
+            <div class="cardhead"><h3>Weekly bottle flow</h3><span>Out vs returned</span></div>
+            <div class="cardbody">
+              <div class="mini-chart">
+                <div class="bar hi" style="height:70%"></div><div class="bar" style="height:64%"></div>
+                <div class="bar hi" style="height:82%"></div><div class="bar" style="height:75%"></div>
+                <div class="bar hi" style="height:90%"></div><div class="bar" style="height:80%"></div>
+                <div class="bar hi" style="height:58%"></div>
+              </div>
+              <div class="axis"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Depot stock health</h3><a href="#" onclick="go('inventory',null);return false">Inventory →</a></div>
+            <div class="cardbody">
+              <div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><b>Al Quoz depot</b><span class="badge green">Healthy</span></div><div class="progress"><i style="width:72%"></i></div><small style="color:var(--muted);font-size:10px">1,842 full · 2,560 cap</small></div>
+              <div style="margin-bottom:13px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><b>Deira depot</b><span class="badge amber">Reorder soon</span></div><div class="progress"><i style="width:31%;background:linear-gradient(90deg,#d97706,#f2b866)"></i></div><small style="color:var(--muted);font-size:10px">640 full · 2,050 cap</small></div>
+              <div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px"><b>Ras Al Khor depot</b><span class="badge green">Healthy</span></div><div class="progress"><i style="width:66%"></i></div><small style="color:var(--muted);font-size:10px">1,320 full · 2,000 cap</small></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Open exceptions</h3><a href="#" onclick="go('exceptions',null);return false">Resolve →</a></div>
+            <div class="cardbody">
+              <div class="list">
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-alert"/></svg></div><div class="rowtext"><b>No empty bottle · Villa 12</b><small>Driver logged 12:20</small></div><span class="badge red">Open</span></div>
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-user"/></svg></div><div class="rowtext"><b>Customer unavailable · Apt 804</b><small>Reschedule requested</small></div><span class="badge amber">Action</span></div>
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-box"/></svg></div><div class="rowtext"><b>Damaged bottle returned · Route C</b><small>Flagged for QA</small></div><span class="badge amber">Review</span></div>
+                <div class="rowitem"><div class="rowicon"><svg><use href="#i-card"/></svg></div><div class="rowtext"><b>Payment due · Marina 1203</b><small>AED 80 · 9 days overdue</small></div><span class="badge red">Billing</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
+      <!-- ============ CUSTOMERS ============ -->
       <section id="customers" class="page">
-        <div class="hero"><div><div class="eyebrow">CRM</div><h2>Customers</h2><p>Every customer has a unique 4-digit PIN. Create one to generate its welcome link.</p></div><button class="primary" onclick="openNew()"><svg><use href="#i-plus"/></svg>New Customer</button></div>
-        <div class="card"><div class="tablewrap"><table class="table" id="custTable"><thead><tr><th>Customer</th><th>Mobile</th><th>Zone</th><th>Plan</th><th>Bottle balance</th><th>PIN</th><th>Next</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="hero-row">
+          <div><div class="eyebrow">CRM · 4,182 active</div><h2>Customers</h2><p>Households, offices and B2B accounts with locations, plans and live bottle balances.</p></div>
+          <div class="btnrow">
+            <button class="ghost"><svg><use href="#i-down"/></svg>Import</button>
+            <button class="primary" onclick="openModal('mCustomer')"><svg><use href="#i-plus"/></svg>New Customer</button>
+          </div>
+        </div>
+        <div class="filters">
+          <div class="seg"><button class="active">All</button><button>Households</button><button>Offices</button><button>B2B</button></div>
+          <div class="filter"><svg><use href="#i-filter"/></svg>Zone: Marina</div>
+          <div class="filter">Plan: Any</div>
+          <div class="filter">Balance: Low</div>
+          <div style="margin-left:auto;font-size:11px;color:var(--muted)">Showing 6 of 4,182</div>
+        </div>
+        <div class="card"><div class="tablewrap"><table class="table">
+          <thead><tr><th>Customer</th><th>Zone</th><th>Plan</th><th>Bottle balance</th><th>Next delivery</th><th>Deposit held</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><div class="person"><div class="pic">FH</div><div><b>Fatima Hassan</b><br/><small style="color:var(--muted)">Villa 24, Jumeirah</small></div></div></td><td>Marina</td><td>11-bottle · Weekly</td><td><div style="width:120px"><div class="progress"><i style="width:64%"></i></div><small style="color:var(--muted);font-size:10px">7 of 11 left</small></div></td><td>Wed 09:00</td><td>2 × AED 30</td><td><span class="badge green">Active</span></td><td><button class="iconbtn" style="width:30px;height:30px" onclick="toast('Opening customer profile')"><svg style="width:15px;height:15px"><use href="#i-dots"/></svg></button></td></tr>
+            <tr><td><div class="person"><div class="pic">AR</div><div><b>Ahmed Rahman</b><br/><small style="color:var(--muted)">Office 5F, Business Bay</small></div></div></td><td>Bay</td><td>44-bottle · 2×/wk</td><td><div style="width:120px"><div class="progress"><i style="width:38%"></i></div><small style="color:var(--muted);font-size:10px">17 of 44 left</small></div></td><td>Today 14:00</td><td>4 × AED 30</td><td><span class="badge green">Active</span></td><td><button class="iconbtn" style="width:30px;height:30px"><svg style="width:15px;height:15px"><use href="#i-dots"/></svg></button></td></tr>
+            <tr><td><div class="person"><div class="pic">SK</div><div><b>Sara Khalil</b><br/><small style="color:var(--muted)">Apt 1203, Marina</small></div></div></td><td>Marina</td><td>11-bottle · Weekly</td><td><div style="width:120px"><div class="progress"><i style="width:18%;background:linear-gradient(90deg,#d97706,#f2b866)"></i></div><small style="color:var(--muted);font-size:10px">2 of 11 left</small></div></td><td><span class="badge amber">On vacation</span></td><td>1 × AED 30</td><td><span class="badge amber">Skip</span></td><td><button class="iconbtn" style="width:30px;height:30px"><svg style="width:15px;height:15px"><use href="#i-dots"/></svg></button></td></tr>
+            <tr><td><div class="person"><div class="pic">GH</div><div><b>Gulf Horizon FZ-LLC</b><br/><small style="color:var(--muted)">B2B · 6 locations</small></div></div></td><td>Multi</td><td>Contract · Daily</td><td><div style="width:120px"><div class="progress"><i style="width:80%"></i></div><small style="color:var(--muted);font-size:10px">Metered contract</small></div></td><td>Daily 08:00</td><td>40 × AED 30</td><td><span class="badge blue">B2B</span></td><td><button class="iconbtn" style="width:30px;height:30px"><svg style="width:15px;height:15px"><use href="#i-dots"/></svg></button></td></tr>
+            <tr><td><div class="person"><div class="pic">MJ</div><div><b>Maryam Jassim</b><br/><small style="color:var(--muted)">Villa 9, Al Barsha</small></div></div></td><td>Barsha</td><td>11-bottle · Weekly</td><td><div style="width:120px"><div class="progress"><i style="width:91%"></i></div><small style="color:var(--muted);font-size:10px">10 of 11 left</small></div></td><td>Thu 10:30</td><td>2 × AED 30</td><td><span class="badge green">Active</span></td><td><button class="iconbtn" style="width:30px;height:30px"><svg style="width:15px;height:15px"><use href="#i-dots"/></svg></button></td></tr>
+            <tr><td><div class="person"><div class="pic">OP</div><div><b>Omar Patel</b><br/><small style="color:var(--muted)">Apt 804, JLT</small></div></div></td><td>JLT</td><td>22-bottle · Weekly</td><td><div style="width:120px"><div class="progress"><i style="width:9%;background:linear-gradient(90deg,#dc2626,#f28b8b)"></i></div><small style="color:var(--muted);font-size:10px">2 of 22 · renew</small></div></td><td>Fri 11:00</td><td>3 × AED 30</td><td><span class="badge red">Payment due</span></td><td><button class="iconbtn" style="width:30px;height:30px"><svg style="width:15px;height:15px"><use href="#i-dots"/></svg></button></td></tr>
+          </tbody>
+        </table></div></div>
       </section>
 
-      <section id="drivers" class="page">
-        <div class="hero"><div><div class="eyebrow">Fleet</div><h2>Drivers</h2><p>Drivers sign in to the app with mobile + PIN. Truck capacity limits route loads.</p></div></div>
-        <div class="card"><div class="tablewrap"><table class="table" id="drvTable"><thead><tr><th>Driver</th><th>Mobile</th><th>PIN</th><th>Truck</th><th>Route</th><th>Capacity (full/empty)</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+      <!-- ============ SCHEDULES ============ -->
+      <section id="schedules" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Recurring calendar</div><h2>Delivery Schedules</h2><p>Each location has a service calendar and default quantity. Cutoff rules feed dispatch automatically.</p></div>
+          <div class="btnrow"><button class="ghost"><svg><use href="#i-cal"/></svg>Manage cutoffs</button><button class="primary" onclick="toast('New recurring schedule')"><svg><use href="#i-plus"/></svg>New Schedule</button></div>
+        </div>
+        <div class="callout"><svg><use href="#i-clock"/></svg><div><b>Cutoff automation</b><p>Changes before 20:00 apply to the next day's route and truck load. After cutoff, they roll to the following service day.</p></div></div>
+        <div class="card">
+          <div class="cardhead"><h3>This week — Marina &amp; Bay zones</h3><div class="seg"><button class="active">Week</button><button>Day</button><button>Month</button></div></div>
+          <div class="cardbody">
+            <div class="tablewrap"><table class="table">
+              <thead><tr><th>Route</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Load</th></tr></thead>
+              <tbody>
+                <tr><td><b>Route A · Marina</b></td><td><span class="badge gray">—</span></td><td><span class="badge em">96 btl</span></td><td><span class="badge em">104 btl</span></td><td><span class="badge gray">—</span></td><td><span class="badge em">88 btl</span></td><td><span class="badge gray">—</span></td><td>3 trucks</td></tr>
+                <tr><td><b>Route B · Business Bay</b></td><td><span class="badge em">72 btl</span></td><td><span class="badge em">80 btl</span></td><td><span class="badge em">75 btl</span></td><td><span class="badge em">82 btl</span></td><td><span class="badge em">70 btl</span></td><td><span class="badge em">58 btl</span></td><td>2 trucks</td></tr>
+                <tr><td><b>Route C · JLT</b></td><td><span class="badge gray">—</span></td><td><span class="badge gray">—</span></td><td><span class="badge em">64 btl</span></td><td><span class="badge gray">—</span></td><td><span class="badge em">60 btl</span></td><td><span class="badge gray">—</span></td><td>1 truck</td></tr>
+                <tr><td><b>Route D · Al Barsha</b></td><td><span class="badge em">54 btl</span></td><td><span class="badge gray">—</span></td><td><span class="badge gray">—</span></td><td><span class="badge em">61 btl</span></td><td><span class="badge gray">—</span></td><td><span class="badge em">49 btl</span></td><td>1 truck</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div>
       </section>
 
-      <section id="deliveries" class="page">
-        <div class="hero"><div><div class="eyebrow">Operations</div><h2>Deliveries — today</h2><p>Live status as drivers complete stops in the app.</p></div></div>
-        <div class="card"><div class="tablewrap"><table class="table" id="delTable2"><thead><tr><th>Seq</th><th>Customer</th><th>Address</th><th>Requested</th><th>Delivered</th><th>Empties</th><th>Status</th></tr></thead><tbody></tbody></table></div></div>
+      <!-- ============ ROUTES ============ -->
+      <section id="routes" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Dispatch · 6 routes live</div><h2>Routes &amp; Dispatch</h2><p>AI-assisted sequencing balances truck load, empty-return capacity and delivery windows.</p></div>
+          <div class="btnrow"><button class="ghost" onclick="toast('Re-optimised 6 routes')"><svg><use href="#i-route"/></svg>Re-optimise</button><button class="primary" onclick="toast('Dispatched to driver PWAs')"><svg><use href="#i-truck"/></svg>Dispatch all</button></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="cardhead"><h3>Route A · Dubai Marina</h3><span>Karim · DXB-07 · 5 of 21 stops</span></div>
+            <div class="cardbody">
+              <div class="route-map" style="height:270px">
+                <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div>
+                <div class="route-line"></div>
+                <div class="pin done" style="left:16%;top:24%">1</div><div class="pin done" style="left:38%;top:33%">2</div>
+                <div class="pin active" style="left:54%;top:52%">3</div><div class="pin" style="left:70%;top:44%">4</div><div class="pin" style="left:66%;top:70%">5</div>
+                <div class="mapbadge">Progress <b>24%</b> · ETA end 15:10</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Stop sequence</h3><a href="#" onclick="toast('Reordered stop');return false">Reorder</a></div>
+            <div class="cardbody"><div class="list">
+              <div class="rowitem"><div class="pin done" style="position:static">1</div><div class="rowtext"><b>Villa 24, Jumeirah</b><small>2 full → 2 empty · 09:04 done</small></div><span class="badge green">Done</span></div>
+              <div class="rowitem"><div class="pin done" style="position:static">2</div><div class="rowtext"><b>Apt 402, Marina Gate</b><small>1 full → 1 empty · 09:31 done</small></div><span class="badge green">Done</span></div>
+              <div class="rowitem"><div class="pin active" style="position:static">3</div><div class="rowtext"><b>Office 5F, Business Bay</b><small>3 full → 3 empty · en route</small></div><span class="badge em">Now</span></div>
+              <div class="rowitem"><div class="pin" style="position:static">4</div><div class="rowtext"><b>Villa 9, Al Barsha</b><small>1 full → 1 empty · window 10:30</small></div><span class="badge gray">Next</span></div>
+              <div class="rowitem"><div class="pin" style="position:static">5</div><div class="rowtext"><b>Apt 1203, Marina — SKIP</b><small>Vacation · auto-removed from load</small></div><span class="badge amber">Skip</span></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="cardhead"><h3>All routes today</h3><span>Auto-balanced 12:40</span></div>
+          <div class="cardbody"><div class="tablewrap"><table class="table">
+            <thead><tr><th>Route</th><th>Driver</th><th>Truck</th><th>Stops</th><th>Full load</th><th>Empty cap</th><th>Progress</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><b>Route A</b> · Marina</td><td>Karim S.</td><td>DXB-07</td><td>21</td><td>104</td><td>110</td><td><div style="width:110px"><div class="progress"><i style="width:24%"></i></div></div></td><td><span class="badge em">En route</span></td></tr>
+              <tr><td><b>Route B</b> · Bay</td><td>Yusuf M.</td><td>DXB-02</td><td>18</td><td>80</td><td>90</td><td><div style="width:110px"><div class="progress"><i style="width:61%"></i></div></div></td><td><span class="badge em">En route</span></td></tr>
+              <tr><td><b>Route C</b> · JLT</td><td>Bilal K.</td><td>DXB-11</td><td>14</td><td>64</td><td>70</td><td><div style="width:110px"><div class="progress"><i style="width:88%"></i></div></div></td><td><span class="badge em">En route</span></td></tr>
+              <tr><td><b>Route D</b> · Barsha</td><td>Naveed A.</td><td>DXB-05</td><td>12</td><td>54</td><td>60</td><td><div style="width:110px"><div class="progress"><i style="width:100%"></i></div></div></td><td><span class="badge green">Complete</span></td></tr>
+              <tr><td><b>Route E</b> · Deira</td><td>Imran F.</td><td>DXB-09</td><td>16</td><td>72</td><td>80</td><td><div style="width:110px"><div class="progress"><i style="width:0%"></i></div></div></td><td><span class="badge gray">Loading</span></td></tr>
+            </tbody>
+          </table></div></div>
+        </div>
       </section>
 
+      <!-- ============ FLEET ============ -->
+      <section id="fleet" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Fleet · 9 trucks · 14 drivers</div><h2>Fleet &amp; Drivers</h2><p>Truck load capacity, driver credentials, permissions and performance.</p></div>
+          <div class="btnrow"><button class="ghost"><svg><use href="#i-truck"/></svg>Add Truck</button><button class="primary" onclick="toast('New driver credential issued')"><svg><use href="#i-plus"/></svg>Add Driver</button></div>
+        </div>
+        <div class="grid3">
+          <div class="card kpi"><div class="kpitop"><small>Fleet utilisation</small><span class="kpi-icon em"><svg><use href="#i-truck"/></svg></span></div><strong>78%</strong><div class="delta">7 of 9 active</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Avg stops / driver</small><span class="kpi-icon cy"><svg><use href="#i-pin"/></svg></span></div><strong>19.4</strong><div class="delta">▲ 6% efficiency</div></div>
+          <div class="card kpi"><div class="kpitop"><small>On-time rate</small><span class="kpi-icon"><svg><use href="#i-clock"/></svg></span></div><strong>96.2%</strong><div class="delta">▲ 1.1% this week</div></div>
+        </div>
+        <div class="card"><div class="tablewrap"><table class="table">
+          <thead><tr><th>Driver</th><th>Truck</th><th>Capacity (full/empty)</th><th>Route</th><th>Stops done</th><th>On-time</th><th>Credential</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><div class="person"><div class="pic">KS</div><b>Karim Saleh</b></div></td><td>DXB-07</td><td>120 / 130</td><td>Route A</td><td>5 / 21</td><td>97%</td><td><span class="badge green">Verified</span></td><td><span class="badge em">On route</span></td></tr>
+            <tr><td><div class="person"><div class="pic">YM</div><b>Yusuf Malik</b></div></td><td>DXB-02</td><td>100 / 110</td><td>Route B</td><td>11 / 18</td><td>95%</td><td><span class="badge green">Verified</span></td><td><span class="badge em">On route</span></td></tr>
+            <tr><td><div class="person"><div class="pic">BK</div><b>Bilal Khan</b></div></td><td>DXB-11</td><td>90 / 100</td><td>Route C</td><td>12 / 14</td><td>99%</td><td><span class="badge green">Verified</span></td><td><span class="badge em">On route</span></td></tr>
+            <tr><td><div class="person"><div class="pic">NA</div><b>Naveed Ahmed</b></div></td><td>DXB-05</td><td>80 / 90</td><td>Route D</td><td>12 / 12</td><td>100%</td><td><span class="badge green">Verified</span></td><td><span class="badge green">Done</span></td></tr>
+            <tr><td><div class="person"><div class="pic">IF</div><b>Imran Farooq</b></div></td><td>DXB-09</td><td>100 / 110</td><td>Route E</td><td>0 / 16</td><td>94%</td><td><span class="badge amber">Renew 20 Aug</span></td><td><span class="badge gray">Loading</span></td></tr>
+          </tbody>
+        </table></div></div>
+      </section>
+
+      <!-- ============ INVENTORY ============ -->
+      <section id="inventory" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Returnable asset ledger</div><h2>Bottle Inventory</h2><p>Every reusable bottle is a tracked asset — full, empty, in-truck, at-customer, damaged or in-wash.</p></div>
+          <div class="btnrow"><button class="ghost"><svg><use href="#i-down"/></svg>Stock report</button><button class="primary" onclick="toast('Stock adjustment logged')"><svg><use href="#i-plus"/></svg>Adjust Stock</button></div>
+        </div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpitop"><small>Total asset pool</small><span class="kpi-icon cy"><svg><use href="#i-drop"/></svg></span></div><strong>18,400</strong><div class="delta">5-gal reusable bottles</div></div>
+          <div class="card kpi"><div class="kpitop"><small>At customers</small><span class="kpi-icon em"><svg><use href="#i-users"/></svg></span></div><strong>9,120</strong><div class="delta">Deposit-backed</div></div>
+          <div class="card kpi"><div class="kpitop"><small>In circulation loss</small><span class="kpi-icon am"><svg><use href="#i-alert"/></svg></span></div><strong>1.8%</strong><div class="delta warn">Target &lt; 2%</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Damaged / QA hold</small><span class="kpi-icon"><svg><use href="#i-box"/></svg></span></div><strong>212</strong><div class="delta down">▲ 18 this week</div></div>
+        </div>
+        <div class="card">
+          <div class="cardhead"><h3>Asset state by depot</h3><span>Live positions</span></div>
+          <div class="cardbody"><div class="tablewrap"><table class="table">
+            <thead><tr><th>Depot</th><th>Full ready</th><th>Empty (unwashed)</th><th>In-wash</th><th>In-truck</th><th>At customer</th><th>Damaged</th></tr></thead>
+            <tbody>
+              <tr><td><b>Al Quoz</b></td><td>1,842</td><td>760</td><td>320</td><td>410</td><td>3,980</td><td>84</td></tr>
+              <tr><td><b>Deira</b></td><td>640</td><td>512</td><td>210</td><td>288</td><td>2,640</td><td>66</td></tr>
+              <tr><td><b>Ras Al Khor</b></td><td>1,320</td><td>430</td><td>180</td><td>360</td><td>2,500</td><td>62</td></tr>
+            </tbody>
+          </table></div></div>
+        </div>
+      </section>
+
+      <!-- ============ RECONCILIATION ============ -->
+      <section id="recon" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Two-sided bottle accounting</div><h2>Bottle Reconciliation</h2><p>Full loaded → delivered → empties returned → remaining in truck → back to depot. Loss surfaces instantly.</p></div>
+          <div class="btnrow"><div class="seg"><button class="active">Route A</button><button>Route B</button><button>All</button></div></div>
+        </div>
+        <div class="callout"><svg><use href="#i-recycle"/></svg><div><b>Route A reconciles clean</b><p>104 loaded = 96 delivered + 8 remaining. 92 empties collected, 4 flagged missing → auto-charged to customer deposits.</p></div></div>
+        <div class="card">
+          <div class="cardhead"><h3>Today · Route A · Karim S. · DXB-07</h3><span>Auto-reconciled at close</span></div>
+          <div class="cardbody">
+            <div class="recon">
+              <div class="reconbox"><small>Loaded full</small><strong>104</strong><div class="sub">from Al Quoz</div><div class="reconarrow"><svg><use href="#i-chev"/></svg></div></div>
+              <div class="reconbox"><small>Delivered</small><strong>96</strong><div class="sub">21 stops</div><div class="reconarrow"><svg><use href="#i-chev"/></svg></div></div>
+              <div class="reconbox"><small>Empties returned</small><strong>92</strong><div class="sub">collected</div><div class="reconarrow"><svg><use href="#i-chev"/></svg></div></div>
+              <div class="reconbox"><small>Remaining full</small><strong>8</strong><div class="sub">back to depot</div><div class="reconarrow"><svg><use href="#i-chev"/></svg></div></div>
+              <div class="reconbox" style="background:#fdf3e5;border-color:#f3ddb5"><small>Variance</small><strong style="color:var(--amber)">4</strong><div class="sub">missing empties</div></div>
+            </div>
+            <div class="section-title">Bottle movement ledger</div>
+            <div class="ledger">
+              <div class="led minus"><div class="ic"><svg><use href="#i-truck"/></svg></div><div><b>Loaded 104 full bottles</b><small>Al Quoz depot → DXB-07 · 07:12</small></div><span class="amt neg">−104 depot</span></div>
+              <div class="led minus"><div class="ic"><svg><use href="#i-drop"/></svg></div><div><b>Delivered 96 full to customers</b><small>Across 21 stops · entitlements consumed on completion</small></div><span class="amt neg">−96 truck</span></div>
+              <div class="led plus"><div class="ic"><svg><use href="#i-recycle"/></svg></div><div><b>Collected 92 empties</b><small>Returned to truck for depot wash cycle</small></div><span class="amt pos">+92 empty</span></div>
+              <div class="led warn"><div class="ic"><svg><use href="#i-alert"/></svg></div><div><b>4 empties not returned</b><small>Auto-flagged · deposit hold applied to 4 customers</small></div><span class="amt" style="color:var(--amber)">−4 asset</span></div>
+              <div class="led plus"><div class="ic"><svg><use href="#i-box"/></svg></div><div><b>Returned 8 full + 92 empty to depot</b><small>Reconciled 15:14 · variance approved by Rania A.</small></div><span class="amt pos">+100 depot</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EXCEPTIONS ============ -->
       <section id="exceptions" class="page">
-        <div class="hero"><div><div class="eyebrow">Exception-first</div><h2>Exceptions</h2><p>Field events logged by drivers become structured records here.</p></div></div>
-        <div class="card"><div class="tablewrap"><table class="table" id="excTable"><thead><tr><th>Customer</th><th>Address</th><th>Type</th><th>Logged</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="hero-row">
+          <div><div class="eyebrow">Exception-first operations</div><h2>Exceptions</h2><p>Field events become structured, assignable records — never WhatsApp messages or lost notes.</p></div>
+          <div class="btnrow"><div class="seg"><button class="active">Open (4)</button><button>Resolved</button><button>All</button></div></div>
+        </div>
+        <div class="card"><div class="cardbody" style="padding:18px">
+          <div class="exception"><div class="ic"><svg><use href="#i-alert"/></svg></div><div><b>No empty bottle available · Villa 12, Jumeirah</b><small>Karim S. · 12:20 · Customer had no empty to exchange. Full bottle left, empty owed next visit.</small></div><div class="btnrow"><button class="ghost" style="padding:8px 11px">Reassign</button><button class="primary" style="padding:8px 11px" onclick="resolveEx(this)">Resolve</button></div></div>
+          <div class="exception amber"><div class="ic"><svg><use href="#i-user"/></svg></div><div><b>Customer unavailable · Apt 804, JLT</b><small>Bilal K. · 11:48 · No answer, building access denied. Customer messaged to reschedule.</small></div><div class="btnrow"><button class="ghost" style="padding:8px 11px">Reschedule</button><button class="primary" style="padding:8px 11px" onclick="resolveEx(this)">Resolve</button></div></div>
+          <div class="exception amber"><div class="ic"><svg><use href="#i-box"/></svg></div><div><b>Damaged bottle returned · Route C</b><small>Bilal K. · 11:10 · Cracked seal on returned empty. Pulled from wash cycle for QA inspection.</small></div><div class="btnrow"><button class="ghost" style="padding:8px 11px">Send to QA</button><button class="primary" style="padding:8px 11px" onclick="resolveEx(this)">Resolve</button></div></div>
+          <div class="exception"><div class="ic"><svg><use href="#i-card"/></svg></div><div><b>Payment issue · Marina 1203</b><small>System · AED 80 renewal · 9 days overdue. Auto-reminder sent via WhatsApp, delivery paused.</small></div><div class="btnrow"><button class="ghost" style="padding:8px 11px">Payment link</button><button class="primary" style="padding:8px 11px" onclick="resolveEx(this)">Resolve</button></div></div>
+        </div></div>
+      </section>
+
+      <!-- ============ BILLING ============ -->
+      <section id="billing" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Plans · renewals · deposits</div><h2>Billing &amp; Plans</h2><p>Entitlement ledger, auto-renewal, cash and online payments, refundable bottle deposits.</p></div>
+          <div class="btnrow"><button class="ghost"><svg><use href="#i-down"/></svg>Invoices</button><button class="primary" onclick="toast('New plan created')"><svg><use href="#i-plus"/></svg>New Plan</button></div>
+        </div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpitop"><small>MRR</small><span class="kpi-icon em"><svg><use href="#i-cash"/></svg></span></div><strong>AED 214k</strong><div class="delta">▲ 6.4% MoM</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Auto-renewals due</small><span class="kpi-icon cy"><svg><use href="#i-clock"/></svg></span></div><strong>186</strong><div class="delta">Next 7 days</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Deposits held</small><span class="kpi-icon"><svg><use href="#i-shield"/></svg></span></div><strong>AED 273k</strong><div class="delta">9,120 bottles</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Overdue</small><span class="kpi-icon am"><svg><use href="#i-alert"/></svg></span></div><strong>AED 4,120</strong><div class="delta warn">31 accounts</div></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="cardhead"><h3>Plan catalogue</h3><span>Configurable per tenant</span></div>
+            <div class="cardbody"><div class="tablewrap"><table class="table">
+              <thead><tr><th>Plan</th><th>Bottles</th><th>Cadence</th><th>Price</th><th>Deposit / bottle</th><th>Active</th></tr></thead>
+              <tbody>
+                <tr><td><b>Starter</b></td><td>11</td><td>Weekly</td><td>AED 80</td><td>AED 30</td><td>1,240</td></tr>
+                <tr><td><b>Family</b></td><td>22</td><td>Weekly</td><td>AED 150</td><td>AED 30</td><td>1,860</td></tr>
+                <tr><td><b>Office</b></td><td>44</td><td>2×/week</td><td>AED 290</td><td>AED 30</td><td>640</td></tr>
+                <tr><td><b>B2B Contract</b></td><td>Metered</td><td>Daily</td><td>Custom</td><td>AED 30</td><td>42</td></tr>
+              </tbody>
+            </table></div></div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Entitlement ledger · Fatima Hassan</h3><span>Starter · 11-bottle</span></div>
+            <div class="cardbody"><div class="ledger">
+              <div class="led plus"><div class="ic"><svg><use href="#i-card"/></svg></div><div><b>Plan purchased · 11 bottles</b><small>03 Aug · AED 80 online · auto-renew on</small></div><span class="amt pos">+11</span></div>
+              <div class="led minus"><div class="ic"><svg><use href="#i-drop"/></svg></div><div><b>Delivery completed · 2 bottles</b><small>06 Aug · proof photo · Karim S.</small></div><span class="amt neg">−2</span></div>
+              <div class="led minus"><div class="ic"><svg><use href="#i-drop"/></svg></div><div><b>Delivery completed · 2 bottles</b><small>10 Aug · proof photo · Karim S.</small></div><span class="amt neg">−2</span></div>
+              <div class="led warn"><div class="ic"><svg><use href="#i-recycle"/></svg></div><div><b>Correction · +1 promo bottle</b><small>Goodwill credit for late delivery 06 Aug</small></div><span class="amt" style="color:var(--amber)">+1</span></div>
+              <div style="text-align:center;padding:10px;font-weight:850;font-size:13px">Balance remaining: <span style="color:var(--emerald)">8 bottles</span></div>
+            </div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PROMOTIONS ============ -->
+      <section id="promos" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Marketing · offers engine</div><h2>Promotions &amp; Offers</h2><p>Build renewal offers, spend rewards, referrals and seasonal bundles. Toggle any promo live to the customer portal.</p></div>
+          <div class="btnrow"><button class="ghost" onclick="toast('Opened offer templates')"><svg><use href="#i-gift"/></svg>Templates</button><button class="primary" onclick="openModal('mPromo')"><svg><use href="#i-plus"/></svg>Create Promotion</button></div>
+        </div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpitop"><small>Active promotions</small><span class="kpi-icon em"><svg><use href="#i-gift"/></svg></span></div><strong>5</strong><div class="delta">2 portal-visible</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Redemptions (30d)</small><span class="kpi-icon cy"><svg><use href="#i-tag"/></svg></span></div><strong>412</strong><div class="delta">▲ 34% MoM</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Promo-driven revenue</small><span class="kpi-icon"><svg><use href="#i-cash"/></svg></span></div><strong>AED 38.6k</strong><div class="delta">▲ renewals + add-ons</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Avg order uplift</small><span class="kpi-icon am"><svg><use href="#i-chart"/></svg></span></div><strong>+18%</strong><div class="delta">on redeemed orders</div></div>
+        </div>
+        <div class="section-title">Active promotions</div>
+        <div class="promo-grid">
+          <div class="promo-card">
+            <div class="promo-top a"><div class="ptype">Renewal offer</div><h3>Renew Now → 2 Free Bottles</h3><p>Renew before your balance hits zero and get 2 extra bottles free.</p></div>
+            <div class="promo-body"><div class="code">RENEW2FREE</div><div class="stat"><span>Redemptions</span><b>142</b></div><div class="stat"><span>Ends</span><b>31 Aug 2026</b></div><div class="stat"><span>Applies to</span><b>All weekly plans</b></div></div>
+            <div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle" onclick="this.classList.toggle('off');toast('Promo visibility updated')"></button></div>
+          </div>
+          <div class="promo-card">
+            <div class="promo-top b"><div class="ptype">Spend threshold</div><h3>Spend AED 300, Save AED 40</h3><p>Automatic reward when an order or top-up crosses AED 300.</p></div>
+            <div class="promo-body"><div class="code">SAVE40</div><div class="stat"><span>Redemptions</span><b>96</b></div><div class="stat"><span>Ends</span><b>Ongoing</b></div><div class="stat"><span>Applies to</span><b>All customers</b></div></div>
+            <div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle" onclick="this.classList.toggle('off');toast('Promo visibility updated')"></button></div>
+          </div>
+          <div class="promo-card">
+            <div class="promo-top c"><div class="ptype">Referral</div><h3>Refer a Friend — AED 20 Each</h3><p>Both the referrer and the new customer get AED 20 credit.</p></div>
+            <div class="promo-body"><div class="code">FRIEND20</div><div class="stat"><span>Redemptions</span><b>88</b></div><div class="stat"><span>Ends</span><b>Ongoing</b></div><div class="stat"><span>Applies to</span><b>All customers</b></div></div>
+            <div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle off" onclick="this.classList.toggle('off');toast('Promo visibility updated')"></button></div>
+          </div>
+          <div class="promo-card">
+            <div class="promo-top d"><div class="ptype">Bundle</div><h3>Plan + Electric Dispenser 15% Off</h3><p>Buy any plan with an electric dispenser and save 15% on the unit.</p></div>
+            <div class="promo-body"><div class="code">COOLBUNDLE</div><div class="stat"><span>Redemptions</span><b>54</b></div><div class="stat"><span>Ends</span><b>15 Sep 2026</b></div><div class="stat"><span>Applies to</span><b>New sign-ups</b></div></div>
+            <div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle off" onclick="this.classList.toggle('off');toast('Promo visibility updated')"></button></div>
+          </div>
+          <div class="promo-card">
+            <div class="promo-top e"><div class="ptype">Seasonal · scheduled</div><h3>Ramadan Family Pack</h3><p>Discounted 22-bottle family plan for the Ramadan period.</p></div>
+            <div class="promo-body"><div class="code">RAMADAN26</div><div class="stat"><span>Status</span><b>Scheduled</b></div><div class="stat"><span>Starts</span><b>18 Feb 2027</b></div><div class="stat"><span>Applies to</span><b>Family plan</b></div></div>
+            <div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle off" onclick="this.classList.toggle('off');toast('Promo visibility updated')"></button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PRODUCTS & STORE ============ -->
+      <section id="products" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Catalogue · add-on revenue</div><h2>Products &amp; Store</h2><p>Sell dispensers and water accessories that ride your existing delivery trucks. Toggle items into the customer store.</p></div>
+          <div class="btnrow"><button class="ghost" onclick="toast('Stock updated')"><svg><use href="#i-box"/></svg>Manage stock</button><button class="primary" onclick="openModal('mProduct')"><svg><use href="#i-plus"/></svg>Add Product</button></div>
+        </div>
+        <div class="callout"><svg><use href="#i-truck"/></svg><div><b>Zero marginal logistics</b><p>Add-ons are delivered on the customer's existing water route — the last-mile cost is already covered, so attach revenue is near pure margin.</p></div></div>
+        <div class="kpis">
+          <div class="card kpi"><div class="kpitop"><small>Catalogue items</small><span class="kpi-icon em"><svg><use href="#i-store"/></svg></span></div><strong>9</strong><div class="delta">6 in customer store</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Units sold (30d)</small><span class="kpi-icon cy"><svg><use href="#i-disp"/></svg></span></div><strong>236</strong><div class="delta">▲ 22% MoM</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Add-on revenue</small><span class="kpi-icon"><svg><use href="#i-cash"/></svg></span></div><strong>AED 41.2k</strong><div class="delta">▲ dispensers lead</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Attach rate</small><span class="kpi-icon am"><svg><use href="#i-chart"/></svg></span></div><strong>11.4%</strong><div class="delta">of active customers</div></div>
+        </div>
+        <div class="section-title">Dispensers &amp; accessories</div>
+        <div class="prod-grid">
+          <div class="prod-card">
+            <div class="prodimg"><span class="flag">Bestseller</span><svg><use href="#i-hand"/></svg></div>
+            <div class="prod-in"><h4>Manual Pressure Dispenser</h4><div class="desc">Hand-pump / push-type dispenser. No electricity — presses water straight from the 5-gal bottle.</div><div class="price">AED 25 <small>· 340 in stock</small></div></div>
+            <div class="prod-foot"><small>Sold 128 · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle" onclick="this.classList.toggle('off');toast('Store visibility updated')"></button></div></div>
+          </div>
+          <div class="prod-card">
+            <div class="prodimg"><span class="flag">Popular</span><svg><use href="#i-bolt"/></svg></div>
+            <div class="prod-in"><h4>Electric Water Dispenser</h4><div class="desc">Electric motor pump on a stand — automatic dispensing at the press of a button. Fits standard 5-gal bottles.</div><div class="price">AED 60 <small>· 120 in stock</small></div></div>
+            <div class="prod-foot"><small>Sold 74 · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle" onclick="this.classList.toggle('off');toast('Store visibility updated')"></button></div></div>
+          </div>
+          <div class="prod-card">
+            <div class="prodimg"><span class="flag hot">Premium</span><svg><use href="#i-disp"/></svg></div>
+            <div class="prod-in"><h4>Hot &amp; Cold Dispenser</h4><div class="desc">Floor-standing unit with hot, cold and room-temperature taps. Child-lock on hot tap.</div><div class="price">AED 899 <small>· 28 in stock</small></div></div>
+            <div class="prod-foot"><small>Sold 12 · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle" onclick="this.classList.toggle('off');toast('Store visibility updated')"></button></div></div>
+          </div>
+          <div class="prod-card">
+            <div class="prodimg"><svg><use href="#i-box"/></svg></div>
+            <div class="prod-in"><h4>Bottle Stand (steel)</h4><div class="desc">Raised metal stand to mount a 5-gal bottle with a manual dispenser at counter height.</div><div class="price">AED 45 <small>· 90 in stock</small></div></div>
+            <div class="prod-foot"><small>Sold 16 · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle" onclick="this.classList.toggle('off');toast('Store visibility updated')"></button></div></div>
+          </div>
+          <div class="prod-card">
+            <div class="prodimg"><svg><use href="#i-drop"/></svg></div>
+            <div class="prod-in"><h4>Hygiene Caps (12-pack)</h4><div class="desc">Single-use sanitary seals for the bottle neck — keeps the spout clean between refills.</div><div class="price">AED 15 <small>· 500 in stock</small></div></div>
+            <div class="prod-foot"><small>Sold 4 · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle" onclick="this.classList.toggle('off');toast('Store visibility updated')"></button></div></div>
+          </div>
+          <div class="prod-card">
+            <div class="prodimg"><svg><use href="#i-recycle"/></svg></div>
+            <div class="prod-in"><h4>Dispenser Cleaning Kit</h4><div class="desc">Brush + food-safe sanitiser sachets for periodic cleaning of the dispenser tap and tray.</div><div class="price">AED 30 <small>· 60 in stock</small></div></div>
+            <div class="prod-foot"><small>Sold 2 · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle off" onclick="this.classList.toggle('off');toast('Store visibility updated')"></button></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ REPORTS ============ -->
+      <section id="reports" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Analytics · exportable</div><h2>Reports &amp; KPIs</h2><p>Operational, financial and asset intelligence across depots, zones and drivers.</p></div>
+          <div class="btnrow"><div class="seg"><button>7d</button><button class="active">30d</button><button>Qtr</button></div><button class="ghost" onclick="toast('Report exported to PDF')"><svg><use href="#i-down"/></svg>Export</button></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="cardhead"><h3>Revenue &amp; deliveries — 30 days</h3><span>AED 214k · 8,940 deliveries</span></div>
+            <div class="cardbody"><div class="mini-chart" style="height:170px">
+              <div class="bar hi" style="height:55%"></div><div class="bar" style="height:60%"></div><div class="bar hi" style="height:52%"></div><div class="bar" style="height:68%"></div><div class="bar hi" style="height:72%"></div><div class="bar" style="height:64%"></div><div class="bar hi" style="height:80%"></div><div class="bar" style="height:75%"></div><div class="bar hi" style="height:88%"></div><div class="bar" style="height:82%"></div><div class="bar hi" style="height:94%"></div><div class="bar" style="height:90%"></div>
+            </div><div class="axis"><span>W1</span><span></span><span>W2</span><span></span><span>W3</span><span></span><span>W4</span></div></div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Report library</h3><span>Scheduled &amp; on-demand</span></div>
+            <div class="cardbody"><div class="list">
+              <div class="rowitem"><div class="rowicon"><svg><use href="#i-recycle"/></svg></div><div class="rowtext"><b>Bottle loss &amp; deposit report</b><small>Weekly · auto-emailed to finance</small></div><button class="ghost" style="padding:7px 10px">Run</button></div>
+              <div class="rowitem"><div class="rowicon"><svg><use href="#i-truck"/></svg></div><div class="rowtext"><b>Driver performance &amp; on-time</b><small>Monthly · per driver &amp; route</small></div><button class="ghost" style="padding:7px 10px">Run</button></div>
+              <div class="rowitem"><div class="rowicon"><svg><use href="#i-card"/></svg></div><div class="rowtext"><b>Renewals &amp; churn</b><small>Cohort retention by plan</small></div><button class="ghost" style="padding:7px 10px">Run</button></div>
+              <div class="rowitem"><div class="rowicon"><svg><use href="#i-leaf"/></svg></div><div class="rowtext"><b>Sustainability · bottles reused</b><small>Single-use plastic avoided</small></div><button class="ghost" style="padding:7px 10px">Run</button></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="grid3">
+          <div class="card kpi"><div class="kpitop"><small>Delivery success</small><span class="kpi-icon em"><svg><use href="#i-check"/></svg></span></div><strong>98.4%</strong><div class="delta">▲ 0.6%</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Churn (monthly)</small><span class="kpi-icon am"><svg><use href="#i-users"/></svg></span></div><strong>2.1%</strong><div class="delta">▼ 0.4%</div></div>
+          <div class="card kpi"><div class="kpitop"><small>Bottles reused YTD</small><span class="kpi-icon cy"><svg><use href="#i-leaf"/></svg></span></div><strong>1.24M</strong><div class="delta">≈ 41t plastic saved</div></div>
+        </div>
+      </section>
+
+      <!-- ============ TRACEABILITY ============ -->
+      <section id="trace" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">UAE food-safety ready</div><h2>Batch &amp; Quality Traceability</h2><p>QR-linked batch lineage from source and bottling through delivery — recall-ready for UAE standards.</p></div>
+          <div class="btnrow"><button class="ghost"><svg><use href="#i-qr"/></svg>Scan bottle</button><button class="primary" onclick="toast('Recall workflow started')"><svg><use href="#i-alert"/></svg>Initiate Recall</button></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="cardhead"><h3>Batch B-2608-14</h3><span>Bottled 08 Aug · Al Quoz line 2</span></div>
+            <div class="cardbody">
+              <div style="display:flex;gap:16px;align-items:center;margin-bottom:14px">
+                <div class="qr"><svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff"/><g fill="#0b172a"><rect x="6" y="6" width="26" height="26"/><rect x="12" y="12" width="14" height="14" fill="#fff"/><rect x="16" y="16" width="6" height="6" fill="#0b172a"/><rect x="68" y="6" width="26" height="26"/><rect x="74" y="12" width="14" height="14" fill="#fff"/><rect x="78" y="16" width="6" height="6" fill="#0b172a"/><rect x="6" y="68" width="26" height="26"/><rect x="12" y="74" width="14" height="14" fill="#fff"/><rect x="16" y="78" width="6" height="6" fill="#0b172a"/><rect x="40" y="8" width="6" height="6"/><rect x="52" y="8" width="6" height="6"/><rect x="42" y="40" width="6" height="6"/><rect x="54" y="46" width="6" height="6"/><rect x="66" y="42" width="6" height="6"/><rect x="78" y="54" width="6" height="6"/><rect x="40" y="66" width="6" height="6"/><rect x="52" y="72" width="6" height="6"/><rect x="66" y="66" width="6" height="6"/><rect x="80" y="80" width="8" height="8"/></g></svg></div>
+                <div>
+                  <div style="font-size:11px;color:var(--muted)">Source</div><b style="font-size:13px">Hatta Spring · TDS 110 ppm</b>
+                  <div style="font-size:11px;color:var(--muted);margin-top:8px">Lab certificate</div><span class="badge green">Passed · Dubai Municipality</span>
+                  <div style="font-size:11px;color:var(--muted);margin-top:8px">Units in batch</div><b style="font-size:13px">1,200 bottles · 940 delivered</b>
+                </div>
+              </div>
+              <div class="callout"><svg><use href="#i-shield"/></svg><div><b>Recall coverage</b><p>If flagged, 940 delivered units map to 612 customers across 4 zones for instant notification.</p></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Bottle lineage · #DX-5-08841</h3><span>Full lifecycle trail</span></div>
+            <div class="cardbody" style="padding-top:6px">
+              <div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>Source intake · Hatta Spring</b><small>07 Aug 04:10 · TDS &amp; microbio check passed</small></div></div>
+              <div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>Bottled · Batch B-2608-14 · Line 2</b><small>08 Aug 06:22 · seal &amp; fill weight verified</small></div></div>
+              <div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>Depot stock · Al Quoz</b><small>08 Aug 09:40 · QA released to ready stock</small></div></div>
+              <div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>Loaded · Truck DXB-07 · Route A</b><small>10 Aug 07:12 · Karim S.</small></div></div>
+              <div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>Delivered · Villa 24, Jumeirah</b><small>10 Aug 09:04 · proof photo · entitlement consumed</small></div></div>
+              <div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>Empty returned · wash cycle</b><small>Awaiting next visit · asset in-field</small></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS / ROLES ============ -->
+      <section id="settings" class="page">
+        <div class="hero-row">
+          <div><div class="eyebrow">Multi-tenant configuration</div><h2>Roles &amp; Settings</h2><p>Role-based permissions, audit trail and per-tenant configuration — brand, zones, plans, cutoffs and policies.</p></div>
+          <div class="btnrow"><button class="primary" onclick="toast('Role saved')"><svg><use href="#i-plus"/></svg>New Role</button></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="cardhead"><h3>Role permissions</h3><span>4 roles configured</span></div>
+            <div class="cardbody"><div class="perm-grid">
+              <div class="h">Capability</div><div class="h" style="justify-content:center">Admin</div><div class="h" style="justify-content:center">Ops</div><div class="h" style="justify-content:center">Dispatch</div><div class="h" style="justify-content:center">Driver</div>
+              <div>View customers</div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="nocheck"></span></div>
+              <div>Edit plans &amp; billing</div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="nocheck"></span></div><div><span class="nocheck"></span></div>
+              <div>Dispatch routes</div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="nocheck"></span></div>
+              <div>Complete deliveries</div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="nocheck"></span></div><div><span class="nocheck"></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div>
+              <div>Approve reconciliation</div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="nocheck"></span></div><div><span class="nocheck"></span></div>
+              <div>Manage tenant config</div><div><span class="check"><svg><use href="#i-check"/></svg></span></div><div><span class="nocheck"></span></div><div><span class="nocheck"></span></div><div><span class="nocheck"></span></div>
+            </div></div>
+          </div>
+          <div class="card">
+            <div class="cardhead"><h3>Tenant configuration</h3><span>PureWave Water LLC</span></div>
+            <div class="cardbody">
+              <div class="rowitem"><div class="rowtext"><b>Proof photo required</b><small>Driver must capture proof on every delivery</small></div><button class="toggle" onclick="this.classList.toggle('off')"></button></div>
+              <div class="rowitem"><div class="rowtext"><b>QR bottle verification</b><small>Scan bottle QR at handover</small></div><button class="toggle" onclick="this.classList.toggle('off')"></button></div>
+              <div class="rowitem"><div class="rowtext"><b>Online payments (Telr / Stripe)</b><small>Auto-renewal &amp; deposit refunds</small></div><button class="toggle" onclick="this.classList.toggle('off')"></button></div>
+              <div class="rowitem"><div class="rowtext"><b>WhatsApp notifications</b><small>Delivery, reminders &amp; proof to customer</small></div><button class="toggle" onclick="this.classList.toggle('off')"></button></div>
+              <div class="rowitem"><div class="rowtext"><b>Passwordless PIN login via WhatsApp</b><small>Mobile number = customer ID · CRM auto-generates the 4-digit PIN and delivers it over WhatsApp — no SMS / OTP fees</small></div><button class="toggle" onclick="this.classList.toggle('off')"></button></div>
+              <div class="rowitem"><div class="rowtext"><b>Cash-on-delivery collection</b><small>Driver records cash at door</small></div><button class="toggle off" onclick="this.classList.toggle('off')"></button></div>
+              <div class="rowitem"><div class="rowtext"><b>Arabic + English portals</b><small>Customer &amp; driver language toggle</small></div><button class="toggle" onclick="this.classList.toggle('off')"></button></div>
+            </div>
+          </div>
+        </div>
       </section>
 
     </div>
   </div>
 </div>
 
-<div class="modal" id="mNew"><div class="modalbox">
-  <div id="newForm">
-    <h3>New Customer</h3><p>Creates the customer, a unique 4-digit PIN, the first scheduled delivery, and a WhatsApp welcome link.</p>
+<!-- MODAL: new customer -->
+<div class="modal" id="mCustomer">
+  <div class="modalbox">
+    <h3>New Customer</h3>
+    <p>Create a customer, service location and starting plan. Deposit is auto-tracked per bottle.</p>
+    <div id="ncForm">
     <div class="formgrid">
-      <div class="field"><label>Full name</label><input id="f-name" placeholder="e.g. Layla Ahmed"/></div>
-      <div class="field"><label>Mobile</label><input id="f-mobile" placeholder="050 123 4567"/></div>
-      <div class="field full"><label>Service address</label><input id="f-address" placeholder="Villa / Apt, Area, Dubai"/></div>
-      <div class="field"><label>Zone</label><select id="f-zone"><option>Marina</option><option>Bay</option><option>JLT</option><option>Barsha</option></select></div>
-      <div class="field"><label>Plan</label><select id="f-plan"></select></div>
-      <div class="field"><label>Delivery day</label><select id="f-day"><option>Monday</option><option>Tuesday</option><option selected>Wednesday</option><option>Thursday</option><option>Saturday</option></select></div>
-      <div class="field"><label>Payment</label><select id="f-pay"><option value="online">Online · auto-renew</option><option value="cash">Cash on delivery</option></select></div>
+      <div class="field"><label>Full name</label><input id="nc-name" placeholder="e.g. Fatima Hassan"/></div>
+      <div class="field"><label>Mobile</label><input id="nc-mobile" placeholder="050 123 4567"/></div>
+      <div class="field full"><label>Service location</label><input id="nc-address" placeholder="Villa / Apt, Area, Dubai"/></div>
+      <div class="field"><label>Zone</label><select id="nc-zone"><option>Marina</option><option>Bay</option><option>JLT</option><option>Barsha</option></select></div>
+      <div class="field"><label>Plan</label><select id="nc-plan"></select></div>
+      <div class="field"><label>Delivery day</label><select id="nc-day"><option>Wednesday</option><option>Monday</option><option>Thursday</option><option>Saturday</option></select></div>
+      <div class="field"><label>Payment</label><select id="nc-pay"><option value="online">Online · auto-renew</option><option value="cash">Cash on delivery</option></select></div>
     </div>
-    <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" id="createBtn" onclick="createCustomer()"><svg><use href="#i-check"/></svg>Create &amp; generate PIN</button></div>
-  </div>
-  <div id="newResult" style="display:none">
-    <h3>Customer created</h3><p id="r-sub"></p>
-    <div class="result">
-      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--forest);text-align:center">Unique 4-digit PIN</div>
-      <div class="pinbig" id="r-pin">0000</div>
-      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--forest);margin-bottom:6px">Welcome message</div>
-      <div class="msgbox" id="r-msg"></div>
-      <div style="display:flex;gap:9px;margin-top:12px">
-        <a class="wa" id="r-wa" target="_blank" rel="noopener"><svg><use href="#i-chat"/></svg>Send on WhatsApp</a>
-        <button class="ghost" onclick="copyMsg()"><svg style="width:15px;height:15px;stroke:currentColor;vertical-align:-2px"><use href="#i-copy"/></svg> Copy</button>
+    <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" id="ncBtn" onclick="apiCreateCustomer()"><svg><use href="#i-check"/></svg>Create &amp; generate PIN</button></div>
+    </div>
+    <div id="ncResult" style="display:none">
+      <div style="background:linear-gradient(120deg,#e7f6ee,#e9f7f4);border:1px solid #cdeadd;border-radius:15px;padding:16px">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0C6236;text-align:center">Unique 4-digit PIN</div>
+        <div style="font-size:34px;font-weight:850;letter-spacing:.28em;color:#0C6236;text-align:center;margin:6px 0 12px" id="nc-pin">0000</div>
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0C6236;margin-bottom:6px">Welcome message</div>
+        <div id="nc-msg" style="background:#fff;border:1px solid #d9eee4;border-radius:12px;padding:12px;font-size:11.5px;color:#33463c;white-space:pre-wrap;line-height:1.55;max-height:180px;overflow:auto"></div>
+        <div style="display:flex;gap:9px;margin-top:12px">
+          <a id="nc-wa" target="_blank" rel="noopener" style="background:#25D366;color:#fff;border-radius:11px;padding:12px;font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;flex:1">Send on WhatsApp</a>
+          <button class="ghost" onclick="copyNcMsg()">Copy</button>
+        </div>
       </div>
+      <div class="modalactions"><button class="ghost" onclick="closeModal()">Done</button><button class="primary" onclick="openNewCustomer()"><svg><use href="#i-plus"/></svg>Add another</button></div>
     </div>
-    <div class="modalactions"><button class="ghost" onclick="closeModal()">Done</button><button class="primary" onclick="openNew()"><svg><use href="#i-plus"/></svg>Add another</button></div>
   </div>
-</div></div>
+</div>
+
+<!-- MODAL: create promotion -->
+<div class="modal" id="mPromo">
+  <div class="modalbox">
+    <h3>Create Promotion</h3>
+    <p>Design an offer and choose whether it shows in the customer portal. Redemptions track automatically against the entitlement ledger.</p>
+    <div class="formgrid">
+      <div class="field full"><label>Promotion name</label><input id="np-name" placeholder="e.g. Renew Now → 2 Free Bottles"/></div>
+      <div class="field"><label>Offer type</label><select id="np-type"><option>Renewal offer</option><option>Spend threshold</option><option>Referral</option><option>Plan + product bundle</option><option>Seasonal / scheduled</option><option>First-order discount</option></select></div>
+      <div class="field"><label>Reward</label><select id="np-reward"><option>Free bottles</option><option>% discount</option><option>Flat AED off</option><option>Free / discounted product</option><option>Account credit</option></select></div>
+      <div class="field"><label>Trigger value</label><input id="np-trigger" placeholder="e.g. Renew before balance = 0"/></div>
+      <div class="field"><label>Promo code</label><input id="np-code" placeholder="e.g. RENEW2FREE"/></div>
+      <div class="field"><label>Applies to</label><select id="np-applies"><option>All customers</option><option>Weekly plans</option><option>Specific plan</option><option>Specific zone</option><option>New sign-ups</option></select></div>
+      <div class="field"><label>End date</label><input id="np-end" placeholder="31 Aug 2026"/></div>
+    </div>
+    <div class="rowitem" style="margin-top:14px"><div class="rowtext"><b>Show in customer portal</b><small>Customers see this offer on their home &amp; renew screens</small></div><button class="toggle" id="np-vis" onclick="this.classList.toggle('off')"></button></div>
+    <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="apiCreatePromotion()"><svg><use href="#i-check"/></svg>Create promotion</button></div>
+  </div>
+</div>
+
+<!-- MODAL: add product -->
+<div class="modal" id="mProduct">
+  <div class="modalbox">
+    <h3>Add Product</h3>
+    <p>List a dispenser or accessory. Enabled items appear in the customer store and are delivered on the existing water route.</p>
+    <div class="formgrid">
+      <div class="field full"><label>Product name</label><input id="pr-name" placeholder="e.g. Electric Water Dispenser"/></div>
+      <div class="field"><label>Category</label><select id="pr-cat"><option>Dispenser — manual / pressure</option><option>Dispenser — electric / motor</option><option>Dispenser — hot &amp; cold</option><option>Accessory</option><option>Other water product</option></select></div>
+      <div class="field"><label>Sell price (AED)</label><input id="pr-price" placeholder="60"/></div>
+      <div class="field"><label>Unit cost (AED)</label><input id="pr-cost" placeholder="38"/></div>
+      <div class="field"><label>Stock on hand</label><input id="pr-stock" placeholder="120"/></div>
+      <div class="field full"><label>Short description</label><input id="pr-desc" placeholder="Electric motor pump on a stand — one-press dispensing."/></div>
+    </div>
+    <div class="rowitem" style="margin-top:14px"><div class="rowtext"><b>Add to customer store</b><small>Delivered free with the next scheduled water delivery</small></div><button class="toggle" id="pr-vis" onclick="this.classList.toggle('off')"></button></div>
+    <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="apiCreateProduct()"><svg><use href="#i-check"/></svg>Add product</button></div>
+  </div>
+</div>
 
 <div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastmsg">Saved</span></div>
 
 <script>
-const $=s=>document.querySelector(s);
-let plans=[], lastMsg='';
-function go(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));$('#'+id).classList.add('active');document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');const t={dashboard:['Operations Dashboard','Live data from your AquaOS database'],customers:['Customers','Unique PIN per customer'],drivers:['Drivers','Fleet & credentials'],deliveries:["Deliveries — today",'Live delivery status'],exceptions:['Exceptions','Structured field events']}[id];$('#pt').textContent=t[0];$('#ps').textContent=t[1];refresh();}
-function money(n){return 'AED '+Number(n).toLocaleString()}
-async function refresh(){
+function go(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+  if(btn){btn.classList.add('active')}
+  else{document.querySelectorAll('.navbtn').forEach(b=>{if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active')})}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(){document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open'))}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal()}));
+let tT;
+function toast(msg){const t=document.getElementById('toast');document.getElementById('toastmsg').textContent=msg;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2600)}
+function resolveEx(btn){const ex=btn.closest('.exception');ex.style.transition='.3s';ex.style.opacity='0';ex.style.transform='translateX(20px)';setTimeout(()=>ex.remove(),300);toast('Exception resolved & logged')}
+
+/* ============ LIVE DATA WIRING (real backend) ============ */
+const API=(p,o)=>fetch(p,o).then(r=>r.json());
+let PLANS=[];
+const initials=n=>(n||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const money=n=>'AED '+Number(n||0).toLocaleString();
+
+// hook page navigation to refresh live data
+const _go=go;
+go=function(id,btn){_go(id,btn);refreshPage(id);};
+function refreshPage(id){
+  ({dashboard:loadDashboard,customers:loadCustomers,promos:loadPromotions,products:loadProducts,fleet:loadFleet,
+    schedules:loadSchedules,routes:loadRoutes,inventory:loadInventory,recon:loadRecon,exceptions:loadExceptions,
+    billing:loadBilling,reports:loadReports,trace:loadTrace,settings:loadSettings}[id]||(()=>{}))();
+}
+const badge=(cls,txt)=>`<span class="badge ${cls}">${txt}</span>`;
+
+// ----- New Customer -----
+const _openModal=openModal;
+openModal=function(id){_openModal(id);if(id==='mCustomer')prepNc();};
+function prepNc(){$('#nc-plan')&&0;const sel=document.getElementById('nc-plan');if(sel&&PLANS.length)sel.innerHTML=PLANS.map(p=>`<option value="${p.id}">${p.name} · ${p.bottles} bottles · AED ${p.price}</option>`).join('');document.getElementById('ncForm').style.display='block';document.getElementById('ncResult').style.display='none';['nc-name','nc-mobile','nc-address'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=''});}
+function openNewCustomer(){openModal('mCustomer');}
+let ncMsg='';
+async function apiCreateCustomer(){
+  const b={name:val('nc-name'),mobile:val('nc-mobile'),address:val('nc-address'),zone:val('nc-zone'),plan_id:Number(val('nc-plan')),delivery_day:val('nc-day'),payment:val('nc-pay')};
+  if(!b.name||!b.mobile){toast('Name and mobile are required');return}
+  const btn=document.getElementById('ncBtn');btn.disabled=true;
+  const d=await API('/api/customers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  btn.disabled=false;
+  if(!d.ok){toast(d.error||'Could not create');return}
+  ncMsg=d.welcomeMessage;
+  document.getElementById('nc-pin').textContent=d.pin;
+  document.getElementById('nc-msg').textContent=d.welcomeMessage;
+  document.getElementById('nc-wa').href=d.whatsappLink;
+  document.getElementById('ncForm').style.display='none';
+  document.getElementById('ncResult').style.display='block';
+  toast('Customer created · PIN '+d.pin);loadCustomers();loadDashboard();
+}
+function copyNcMsg(){navigator.clipboard.writeText(ncMsg).then(()=>toast('Welcome message copied'))}
+const val=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+
+// ----- Dashboard -----
+async function loadDashboard(){
   try{
-    const s=await (await fetch('/api/stats')).json();
-    $('#dbstatus').innerHTML='● online · '+s.customers+' customers';
-    $('#kpis').innerHTML=[
-      ['Customers',s.customers,'i-users'],['Deliveries today',s.deliveriesToday+' ('+s.completedToday+' done)','i-truck'],
-      ['Bottles at customers',s.bottlesOut,'i-drop'],['Deposits held',money(s.deposits),'i-check']
-    ].map(k=>`<div class="card kpi"><span class="ic"><svg><use href="#${k[2]}"/></svg></span><small>${k[0]}</small><strong>${k[1]}</strong></div>`).join('');
-    const dels=await (await fetch('/api/driver/0/stops')).json().catch(()=>[]);
-    // dashboard + deliveries tables from a combined query
-    const all=await allDeliveries();
-    $('#delcount').textContent=all.length+' scheduled';
-    $('#delTable tbody').innerHTML=all.map(d=>`<tr><td>${d.seq}</td><td>${d.customer}</td><td style="color:var(--muted)">${d.address}</td><td>${d.route||'—'}</td><td>${d.qty_requested}</td><td>${statusBadge(d.status)}</td></tr>`).join('')||emptyRow(6);
-    $('#delTable2 tbody').innerHTML=all.map(d=>`<tr><td>${d.seq}</td><td>${d.customer}</td><td style="color:var(--muted)">${d.address}</td><td>${d.qty_requested}</td><td>${d.qty_delivered||'—'}</td><td>${d.empties_collected||'—'}</td><td>${statusBadge(d.status)}</td></tr>`).join('')||emptyRow(7);
-  }catch(e){$('#dbstatus').textContent='● API offline — run npm start'}
-  // customers
-  const cs=await (await fetch('/api/customers')).json();
-  $('#custTable tbody').innerHTML=cs.map(c=>{const pct=Math.round(c.bottles_left/c.bottles_total*100);return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>0${c.mobile}</td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total}</small></td><td><b style="letter-spacing:.12em">${c.pin||'••••'}</b></td><td>${c.delivery_day}</td><td>${statusBadge(c.status)}</td></tr>`}).join('')||emptyRow(8);
-  // drivers
-  const ds=await (await fetch('/api/drivers')).json();
-  $('#drvTable tbody').innerHTML=ds.map(d=>`<tr><td><div class="person"><div class="pic">${initials(d.name)}</div><b>${d.name}</b></div></td><td>0${d.mobile}</td><td><b style="letter-spacing:.12em">${d.pin}</b></td><td>${d.truck}</td><td>${d.route}</td><td>${d.cap_full} / ${d.cap_empty}</td><td><span class="badge green">${d.status}</span></td></tr>`).join('');
-  // exceptions
-  const ex=await (await fetch('/api/exceptions')).json();
-  $('#excTable tbody').innerHTML=ex.map(e=>`<tr><td>${e.customer}</td><td style="color:var(--muted)">${e.address}</td><td><span class="badge amber">${e.exception}</span></td><td>${(e.completed_at||'').replace('T',' ').slice(0,16)}</td></tr>`).join('')||emptyRow(4,'No open exceptions');
+    const s=await API('/api/stats');const rec=await API('/api/reconciliation');
+    const delivered=rec.reduce((a,r)=>a+r.delivered,0),empties=rec.reduce((a,r)=>a+r.empties,0);
+    const k=document.querySelectorAll('#dashboard .kpis .kpi strong');
+    if(k[0])k[0].textContent=s.deliveriesToday;
+    if(k[1])k[1].textContent=delivered;
+    if(k[2])k[2].textContent=empties;
+    if(k[3])k[3].textContent=money(s.deposits);
+  }catch(e){}
 }
-async function allDeliveries(){
-  const ds=await (await fetch('/api/drivers')).json();
-  let out=[];
-  for(const d of ds){const rows=await (await fetch('/api/driver/'+d.id+'/stops')).json();rows.forEach(r=>r.route=d.route);out=out.concat(rows);}
-  return out.sort((a,b)=>(a.route||'').localeCompare(b.route||'')||a.seq-b.seq);
+
+// ----- Customers -----
+async function loadCustomers(){
+  const cs=await API('/api/customers');
+  const tb=document.querySelector('#customers table tbody');if(!tb)return;
+  tb.innerHTML=cs.map(c=>{const pct=Math.round(c.bottles_left/c.bottles_total*100);const st=(c.status||'active');const sb=st==='active'?'green':st==='payment due'?'red':'amber';
+    return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br/><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div style="width:120px"><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total} left</small></div></td><td>${c.delivery_day}</td><td>${c.deposit_bottles||0} × AED 30</td><td><span class="badge ${sb}">${st}</span></td><td><b style="letter-spacing:.14em" title="Login PIN">${c.pin||'••••'}</b></td></tr>`;}).join('');
 }
-function statusBadge(s){const m={pending:['gray','Pending'],done:['green','Delivered'],skipped:['amber','Skipped'],exception:['red','Exception'],active:['green','Active']};const x=m[s]||['gray',s];return `<span class="badge ${x[0]}">${x[1]}</span>`}
-function initials(n){return (n||'').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}
-function emptyRow(cols,txt){return `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);padding:22px">${txt||'No records yet'}</td></tr>`}
-function openNew(){$('#newForm').style.display='block';$('#newResult').style.display='none';['f-name','f-mobile','f-address'].forEach(id=>$('#'+id).value='');$('#mNew').classList.add('open')}
-function closeModal(){$('#mNew').classList.remove('open')}
-$('#mNew').addEventListener('click',e=>{if(e.target.id==='mNew')closeModal()});
-async function createCustomer(){
-  const body={name:$('#f-name').value.trim(),mobile:$('#f-mobile').value.trim(),address:$('#f-address').value.trim(),zone:$('#f-zone').value,plan_id:Number($('#f-plan').value),delivery_day:$('#f-day').value,payment:$('#f-pay').value};
-  if(!body.name||!body.mobile){toast('Name and mobile are required');return}
-  $('#createBtn').disabled=true;
-  const res=await fetch('/api/customers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  const data=await res.json();$('#createBtn').disabled=false;
-  if(!data.ok){toast(data.error||'Could not create');return}
-  lastMsg=data.welcomeMessage;
-  $('#r-sub').textContent=data.customer.name+' · 0'+data.customer.mobile+' · '+data.customer.plan_name;
-  $('#r-pin').textContent=data.pin;$('#r-msg').textContent=data.welcomeMessage;$('#r-wa').href=data.whatsappLink;
-  $('#newForm').style.display='none';$('#newResult').style.display='block';
-  toast('Customer created · PIN '+data.pin);refresh();
+
+// ----- Promotions -----
+async function loadPromotions(){
+  const ps=await API('/api/promotions');const grid=document.querySelector('#promos .promo-grid');if(!grid)return;
+  const tops=['a','b','c','d','e'];
+  grid.innerHTML=ps.map((p,i)=>`<div class="promo-card"><div class="promo-top ${tops[i%5]}"><div class="ptype">${p.ptype}</div><h3>${p.name}</h3><p>${p.reward||''}</p></div><div class="promo-body"><div class="code">${p.code||'—'}</div><div class="stat"><span>Redemptions</span><b>${p.redemptions}</b></div><div class="stat"><span>Ends</span><b>${p.ends||'Ongoing'}</b></div><div class="stat"><span>Applies to</span><b>${p.applies_to||'All'}</b></div></div><div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle ${p.portal_visible?'':'off'}" onclick="togglePromo(${p.id},this)"></button></div></div>`).join('');
 }
-function copyMsg(){navigator.clipboard.writeText(lastMsg).then(()=>toast('Welcome message copied'))}
-let tT;function toast(m){$('#toastmsg').textContent=m;$('#toast').classList.add('show');clearTimeout(tT);tT=setTimeout(()=>$('#toast').classList.remove('show'),2600)}
-(async function init(){plans=await (await fetch('/api/plans')).json();$('#f-plan').innerHTML=plans.map(p=>`<option value="${p.id}">${p.name} · ${p.bottles} bottles · AED ${p.price}</option>`).join('');refresh();})();
+async function togglePromo(id,btn){btn.classList.toggle('off');await API('/api/promotions/'+id+'/toggle',{method:'POST'});toast('Promotion visibility updated')}
+async function apiCreatePromotion(){
+  const b={name:val('np-name'),ptype:val('np-type'),reward:val('np-reward')+(val('np-trigger')?' · '+val('np-trigger'):''),code:val('np-code'),applies_to:val('np-applies'),ends:val('np-end'),portal_visible:document.getElementById('np-vis')&&!document.getElementById('np-vis').classList.contains('off')};
+  if(!b.name){toast('Promotion name required');return}
+  const d=await API('/api/promotions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(!d.ok){toast('Could not create');return}
+  closeModal();toast('Promotion created & live');loadPromotions();
+}
+
+// ----- Products -----
+function prodIcon(cat){cat=(cat||'').toLowerCase();if(cat.includes('manual')||cat.includes('pressure'))return 'i-hand';if(cat.includes('electric')||cat.includes('motor'))return 'i-bolt';if(cat.includes('hot'))return 'i-disp';return 'i-box';}
+async function loadProducts(){
+  const ps=await API('/api/products');const grid=document.querySelector('#products .prod-grid');if(!grid)return;
+  grid.innerHTML=ps.map(p=>`<div class="prod-card"><div class="prodimg"><svg><use href="#${prodIcon(p.category)}"/></svg></div><div class="prod-in"><h4>${p.name}</h4><div class="desc">${p.description||''}</div><div class="price">AED ${p.price} <small>· ${p.stock} in stock</small></div></div><div class="prod-foot"><small>Sold ${p.sold} · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle ${p.in_store?'':'off'}" onclick="toggleProduct(${p.id},this)"></button></div></div></div>`).join('');
+}
+async function toggleProduct(id,btn){btn.classList.toggle('off');await API('/api/products/'+id+'/toggle',{method:'POST'});toast('Store visibility updated')}
+async function apiCreateProduct(){
+  const b={name:val('pr-name'),category:val('pr-cat'),price:val('pr-price'),cost:val('pr-cost'),stock:val('pr-stock'),description:val('pr-desc'),in_store:document.getElementById('pr-vis')&&!document.getElementById('pr-vis').classList.contains('off')};
+  if(!b.name){toast('Product name required');return}
+  const d=await API('/api/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(!d.ok){toast('Could not add');return}
+  closeModal();toast('Product added to catalogue');loadProducts();
+}
+
+// ----- Fleet & Drivers -----
+async function loadFleet(){
+  const ds=await API('/api/drivers');const tb=document.querySelector('#fleet table tbody');if(!tb)return;
+  const rows=await Promise.all(ds.map(async d=>{const stops=await API('/api/driver/'+d.id+'/stops');const done=stops.filter(s=>s.status!=='pending').length;return {d,done,total:stops.length};}));
+  tb.innerHTML=rows.map(({d,done,total})=>`<tr><td><div class="person"><div class="pic">${initials(d.name)}</div><b>${d.name}</b></div></td><td>${d.truck}</td><td>${d.cap_full} / ${d.cap_empty}</td><td>${d.route}</td><td>${done} / ${total}</td><td>96%</td><td><span class="badge green">Verified</span></td><td><span class="badge ${total&&done===total?'green':'em'}">${total&&done===total?'Done':'On route'}</span></td></tr>`).join('');
+}
+
+// ----- Schedules -----
+async function loadSchedules(){
+  const d=await API('/api/schedules');const tb=document.querySelector('#schedules table tbody');if(!tb)return;
+  tb.innerHTML=d.rows.map(r=>{const cells=d.days.map(day=>{const n=r.days[day]||0;return `<td>${n?badge('em',n+' stops'):badge('gray','—')}</td>`}).join('');const load=Object.values(r.days).reduce((a,b)=>a+b,0);return `<tr><td><b>${r.zone}</b> zone</td>${cells}<td>${load} stops/wk</td></tr>`}).join('')||`<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No schedules yet</td></tr>`;
+}
+
+// ----- Routes -----
+async function loadRoutes(){
+  const rs=await API('/api/routes');
+  const tb=document.querySelector('#routes table tbody');
+  if(tb)tb.innerHTML=rs.map(r=>{const pct=r.total?Math.round(r.done/r.total*100):0;const st=r.total===0?['gray','Loading']:r.done===r.total?['green','Complete']:['em','En route'];return `<tr><td><b>${r.route}</b> · ${r.driver.split(' ')[0]}</td><td>${r.driver.split(' ')[0]}</td><td>${r.truck}</td><td>${r.total}</td><td>${r.load}</td><td>${r.cap_empty}</td><td><div style="width:110px"><div class="progress"><i style="width:${pct}%"></i></div></div></td><td>${badge(st[0],st[1])}</td></tr>`}).join('');
+  const seq=document.querySelector('#routes .list');
+  if(seq&&rs[0]){seq.innerHTML=rs[0].stops.map(s=>{const cls=s.status==='done'?'done':s.status==='pending'?'':'active';const b=s.status==='done'?['green','Done']:s.status==='pending'?['gray','Next']:s.status==='skipped'?['amber','Skip']:['em','Now'];return `<div class="rowitem"><div class="pin ${cls}" style="position:static">${s.seq}</div><div class="rowtext"><b>${s.address||s.customer}</b><small>${s.qty_requested} full · ${s.customer}</small></div>${badge(b[0],b[1])}</div>`}).join('')||'<div style="padding:16px;color:var(--muted);font-size:12px">No stops today</div>';}
+}
+
+// ----- Inventory -----
+async function loadInventory(){
+  const d=await API('/api/inventory');
+  const k=document.querySelectorAll('#inventory .kpis .kpi strong');
+  if(k[0])k[0].textContent=d.pool.toLocaleString();
+  if(k[1])k[1].textContent=d.atCustomer.toLocaleString();
+  if(k[2])k[2].textContent=d.lossPct+'%';
+  if(k[3])k[3].textContent=d.damaged;
+  const tb=document.querySelector('#inventory table tbody');
+  if(tb)tb.innerHTML=d.depots.map(x=>`<tr><td><b>${x.name}</b></td><td>${x.full_ready.toLocaleString()}</td><td>${x.empty_unwashed}</td><td>${x.in_wash}</td><td>${x.in_truck}</td><td>${x.at_customer.toLocaleString()}</td><td>${x.damaged}</td></tr>`).join('');
+}
+
+// ----- Reconciliation -----
+async function loadRecon(){
+  const rs=await API('/api/reconciliation');const r=rs.find(x=>x.loaded>0)||rs[0];if(!r)return;
+  const box=document.querySelectorAll('#recon .reconbox strong');
+  const vals=[r.loaded,r.delivered,r.empties,r.remaining,r.variance];
+  box.forEach((b,i)=>{if(vals[i]!=null)b.textContent=vals[i]});
+  const led=document.querySelector('#recon .ledger');
+  if(led)led.innerHTML=`
+    <div class="led minus"><div class="ic"><svg><use href="#i-truck"/></svg></div><div><b>Loaded ${r.loaded} full bottles</b><small>${r.truck} · ${r.route}</small></div><span class="amt neg">−${r.loaded} depot</span></div>
+    <div class="led minus"><div class="ic"><svg><use href="#i-drop"/></svg></div><div><b>Delivered ${r.delivered} full to customers</b><small>Entitlements consumed on completion</small></div><span class="amt neg">−${r.delivered} truck</span></div>
+    <div class="led plus"><div class="ic"><svg><use href="#i-recycle"/></svg></div><div><b>Collected ${r.empties} empties</b><small>Returned for depot wash cycle</small></div><span class="amt pos">+${r.empties} empty</span></div>
+    ${r.variance?`<div class="led warn"><div class="ic"><svg><use href="#i-alert"/></svg></div><div><b>${r.variance} empties not returned</b><small>Deposit hold applied automatically</small></div><span class="amt" style="color:var(--amber)">−${r.variance} asset</span></div>`:''}
+    <div class="led plus"><div class="ic"><svg><use href="#i-box"/></svg></div><div><b>Returned ${r.remaining} full + ${r.empties} empty to depot</b><small>Reconciled at route close</small></div><span class="amt pos">+${r.remaining+r.empties} depot</span></div>`;
+}
+
+// ----- Exceptions -----
+async function loadExceptions(){
+  const ex=await API('/api/exceptions');const body=document.querySelector('#exceptions .cardbody');if(!body)return;
+  if(!ex.length){body.innerHTML='<div style="text-align:center;color:var(--muted);padding:26px;font-size:13px">No open exceptions. Field events logged by drivers appear here as structured records.</div>';return}
+  body.innerHTML=ex.map(e=>`<div class="exception"><div class="ic"><svg><use href="#i-alert"/></svg></div><div><b>${e.exception} · ${e.customer}</b><small>${e.address} · ${(e.completed_at||'').replace('T',' ').slice(0,16)}</small></div><div class="btnrow"><button class="primary" style="padding:8px 11px" onclick="resolveExc(${e.id},this)">Resolve</button></div></div>`).join('');
+}
+async function resolveExc(id,btn){await API('/api/exception/'+id+'/resolve',{method:'POST'});const ex=btn.closest('.exception');ex.style.transition='.3s';ex.style.opacity='0';ex.style.transform='translateX(20px)';setTimeout(()=>{ex.remove();loadExceptions()},300);toast('Exception resolved & logged')}
+
+// ----- Billing -----
+async function loadBilling(){
+  const d=await API('/api/billing');
+  const k=document.querySelectorAll('#billing .kpis .kpi strong');
+  if(k[0])k[0].textContent=money(d.mrr);
+  if(k[1])k[1].textContent=d.renewalsDue;
+  if(k[2])k[2].textContent=money(d.deposits);
+  if(k[3])k[3].textContent=money(d.overdue*80);
+  const tb=document.querySelector('#billing table tbody');
+  if(tb)tb.innerHTML=d.plans.map(p=>`<tr><td><b>${p.name}</b></td><td>${p.bottles}</td><td>${p.cadence}</td><td>AED ${p.price}</td><td>AED ${p.deposit}</td><td>${p.active}</td></tr>`).join('');
+  const cs=await API('/api/customers');const first=cs[0];
+  const led=document.querySelector('#billing .ledger');
+  if(led&&first){const lg=await API('/api/customer/'+first.id+'/ledger');const head=document.querySelector('#billing .grid2 .card:last-child .cardhead h3');if(head)head.textContent='Entitlement ledger · '+first.name;
+    led.innerHTML=lg.map(x=>`<div class="led ${x.delta>0?'plus':'minus'}"><div class="ic"><svg><use href="#${x.delta>0?'i-card':'i-drop'}"/></svg></div><div><b>${x.reason}</b><small>${(x.created_at||'').replace('T',' ').slice(0,16)}</small></div><span class="amt ${x.delta>0?'pos':'neg'}">${x.delta>0?'+':''}${x.delta}</span></div>`).join('')+`<div style="text-align:center;padding:10px;font-weight:850;font-size:13px">Balance remaining: <span style="color:var(--emerald)">${first.bottles_left} bottles</span></div>`;}
+}
+
+// ----- Reports -----
+async function loadReports(){
+  const d=await API('/api/reports');const k=document.querySelectorAll('#reports .grid3 .kpi strong');
+  if(k[0])k[0].textContent=d.successRate+'%';
+  if(k[2])k[2].textContent=d.bottlesReused.toLocaleString();
+}
+
+// ----- Traceability -----
+async function loadTrace(){
+  const list=await API('/api/batches');if(!list.length)return;const b=await API('/api/batches/'+list[0].id);
+  const heads=document.querySelectorAll('#trace .cardhead h3');if(heads[0])heads[0].textContent='Batch '+b.code;
+  const step=document.querySelector('#trace .trace-step');
+  if(step){const holder=step.parentElement;holder.innerHTML=b.lineage.map(s=>`<div class="trace-step"><div class="rail"><div class="d"></div></div><div class="body"><b>${s.t}</b><small>${s.s}</small></div></div>`).join('');}
+}
+
+// ----- Settings & Roles -----
+const SETTING_KEYS=['proof_required','qr_verification','online_payments','whatsapp_notifications','pin_login','cash_cod','bilingual'];
+async function loadSettings(){
+  const s=await API('/api/settings');
+  const toggles=document.querySelectorAll('#settings .rowitem .toggle');
+  toggles.forEach((t,i)=>{const key=SETTING_KEYS[i];if(!key)return;t.classList.toggle('off', s[key]==='off');t.onclick=()=>saveSetting(key,t)});
+  const roles=await API('/api/roles');const grid=document.querySelector('#settings .perm-grid');
+  if(grid){grid.innerHTML=`<div class="h">Capability</div><div class="h" style="justify-content:center">Admin</div><div class="h" style="justify-content:center">Ops</div><div class="h" style="justify-content:center">Dispatch</div><div class="h" style="justify-content:center">Driver</div>`+
+    roles.map(r=>`<div>${r.capability}</div>`+['admin','ops','dispatch','driver'].map(c=>`<div style="justify-content:center;cursor:pointer" onclick="toggleRole(${r.id},'${c}',this)">${r[c]?'<span class="check"><svg><use href="#i-check"/></svg></span>':'<span class="nocheck"></span>'}</div>`).join('')).join('');}
+}
+async function saveSetting(key,btn){const off=btn.classList.toggle('off');await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value:off?'off':'on'})});toast('Setting saved')}
+async function toggleRole(id,col,cell){const d=await API('/api/roles/'+id+'/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({col})});cell.innerHTML=d.role[col]?'<span class="check"><svg><use href="#i-check"/></svg></span>':'<span class="nocheck"></span>';toast('Permission updated')}
+
+// ----- init -----
+const $=s=>document.querySelector(s);
+(async function initCRM(){try{PLANS=await API('/api/plans');}catch(e){}loadDashboard();loadCustomers();})();
 </script>
-</body></html>
+</body>
+</html>
