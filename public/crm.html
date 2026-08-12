@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#07182a"/>
+<link rel="icon" type="image/png" href="/aquaos-192.png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <title>AquaOS — Operations CRM · DevX</title>
 <style>
 :root{
@@ -396,11 +399,8 @@ button{cursor:pointer}
           </div>
         </div>
         <div class="filters">
-          <div class="seg"><button class="active">All</button><button>Households</button><button>Offices</button><button>B2B</button></div>
-          <div class="filter"><svg><use href="#i-filter"/></svg>Zone: Marina</div>
-          <div class="filter">Plan: Any</div>
-          <div class="filter">Balance: Low</div>
-          <div style="margin-left:auto;font-size:11px;color:var(--muted)">Showing 6 of 4,182</div>
+          <div class="filter" style="display:flex;align-items:center;gap:8px;padding:0 12px;min-width:280px"><svg><use href="#i-search"/></svg><input id="custSearch" oninput="filterCustomers()" placeholder="Search name, mobile, zone or PIN…" style="border:0;outline:0;background:transparent;font-size:12px;padding:10px 0;width:100%"/></div>
+          <div style="margin-left:auto;font-size:11px;color:var(--muted)" id="custCount">—</div>
         </div>
         <div class="card"><div class="tablewrap"><table class="table">
           <thead><tr><th>Customer</th><th>Zone</th><th>Plan</th><th>Bottle balance</th><th>Next delivery</th><th>Deposit held</th><th>Status</th><th></th></tr></thead>
@@ -912,6 +912,28 @@ button{cursor:pointer}
   <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="apiCreatePlan()"><svg><use href="#i-check"/></svg>Create plan</button></div>
 </div></div>
 
+<!-- MODAL: new schedule -->
+<div class="modal" id="mSchedule"><div class="modalbox">
+  <h3>New / Edit Schedule</h3><p>Set a customer's recurring delivery day. Updates the weekly grid and their next delivery.</p>
+  <div class="field"><label>Customer</label><select id="sc-cust"></select></div>
+  <div class="field"><label>Delivery day</label><select id="sc-day"><option>Monday</option><option>Tuesday</option><option selected>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></div>
+  <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="submitSchedule()"><svg><use href="#i-check"/></svg>Save schedule</button></div>
+</div></div>
+
+<!-- MODAL: new role -->
+<div class="modal" id="mRole"><div class="modalbox">
+  <h3>New Role Capability</h3><p>Adds a row to the permission matrix (enabled for Admin by default; toggle the rest in the grid).</p>
+  <div class="field full"><label>Capability name</label><input id="ro-name" placeholder="e.g. Export data"/></div>
+  <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="submitRole()"><svg><use href="#i-check"/></svg>Add capability</button></div>
+</div></div>
+
+<!-- MODAL: cutoff -->
+<div class="modal" id="mCutoff"><div class="modalbox">
+  <h3>Order Cutoff Time</h3><p>Requests before this time apply to the next day's route and truck load.</p>
+  <div class="field"><label>Cutoff time (HH:MM)</label><input id="ct-time" placeholder="20:00"/></div>
+  <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="submitCutoff()"><svg><use href="#i-check"/></svg>Save cutoff</button></div>
+</div></div>
+
 <div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastmsg">Saved</span></div>
 
 <script>
@@ -980,16 +1002,18 @@ async function loadDashboard(){
     if(k[1])k[1].textContent=delivered;
     if(k[2])k[2].textContent=empties;
     if(k[3])k[3].textContent=money(s.deposits);
+    const ex=await API('/api/exceptions');const lists=document.querySelectorAll('#dashboard .list');const el=lists[lists.length-1];
+    if(el&&ex.length){el.innerHTML=ex.slice(0,4).map(e=>`<div class="rowitem"><div class="rowicon"><svg><use href="#i-alert"/></svg></div><div class="rowtext"><b>${e.exception} · ${e.customer}</b><small>${(e.completed_at||'').replace('T',' ').slice(0,16)}</small></div><span class="badge red">Open</span></div>`).join('');}
   }catch(e){}
 }
 
 // ----- Customers -----
-async function loadCustomers(){
-  const cs=await API('/api/customers');
-  const tb=document.querySelector('#customers table tbody');if(!tb)return;
-  tb.innerHTML=cs.map(c=>{const pct=Math.round(c.bottles_left/c.bottles_total*100);const st=(c.status||'active');const sb=st==='active'?'green':st==='payment due'?'red':'amber';
-    return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br/><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div style="width:120px"><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total} left</small></div></td><td>${c.delivery_day}</td><td>${c.deposit_bottles||0} × AED 30</td><td><span class="badge ${sb}">${st}</span></td><td><b style="letter-spacing:.14em" title="Login PIN">${c.pin||'••••'}</b><div style="display:flex;gap:4px;margin-top:6px"><button style="${miniBtn};color:var(--emerald)" onclick="renewCust(${c.id})">Renew</button><button style="${miniBtn}" onclick="adjustCust(${c.id},1)">+</button><button style="${miniBtn}" onclick="adjustCust(${c.id},-1)">−</button><button style="${miniBtn};color:#b42318;border-color:#f3d0cd;background:#fff5f5" onclick="delCust(${c.id})">Del</button></div></td></tr>`;}).join('');
-}
+let CUST=[];
+function custRow(c){const pct=Math.round(c.bottles_left/c.bottles_total*100);const st=(c.status||'active');const sb=st==='active'?'green':st==='payment due'?'red':'amber';
+    return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br/><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div style="width:120px"><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total} left</small></div></td><td>${c.delivery_day}</td><td>${c.deposit_bottles||0} × AED 30</td><td><span class="badge ${sb}">${st}</span></td><td><b style="letter-spacing:.14em" title="Login PIN">${c.pin||'••••'}</b><div style="display:flex;gap:4px;margin-top:6px"><button style="${miniBtn};color:var(--emerald)" onclick="renewCust(${c.id})">Renew</button><button style="${miniBtn}" onclick="adjustCust(${c.id},1)">+</button><button style="${miniBtn}" onclick="adjustCust(${c.id},-1)">−</button><button style="${miniBtn};color:#b42318;border-color:#f3d0cd;background:#fff5f5" onclick="delCust(${c.id})">Del</button></div></td></tr>`;}
+async function loadCustomers(){CUST=await API('/api/customers');renderCust(CUST);}
+function renderCust(list){const tb=document.querySelector('#customers table tbody');if(!tb)return;tb.innerHTML=list.map(custRow).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:22px">No matching customers</td></tr>';const cc=document.getElementById('custCount');if(cc)cc.textContent='Showing '+list.length+' of '+CUST.length;}
+function filterCustomers(){const q=(document.getElementById('custSearch').value||'').toLowerCase().trim();renderCust(!q?CUST:CUST.filter(c=>((c.name||'')+' '+(c.mobile||'')+' '+(c.zone||'')+' '+(c.pin||'')+' '+(c.plan_name||'')).toLowerCase().includes(q)));}
 
 // ----- Promotions -----
 async function loadPromotions(){
@@ -1138,9 +1162,12 @@ async function reoptimise(){const ds=await API('/api/drivers');for(const d of ds
 async function dispatchAll(){const d=await API('/api/routes/dispatch',{method:'POST'});toast('Dispatched '+d.dispatchedRoutes+' routes to driver apps');}
 async function initiateRecall(){const list=await API('/api/batches');if(!list.length){toast('No batches');return}const d=await API('/api/batches/'+list[0].id+'/recall',{method:'POST'});toast('Recall started · batch '+d.batch+' · '+d.affectedCount+' customers to notify');loadTrace();}
 async function scanBottle(){const list=await API('/api/batches');if(!list.length){toast('No batch');return}const b=await API('/api/batches/'+list[0].id);toast('Bottle traced · batch '+b.code+' · '+b.lineage.length+' lifecycle steps');go('trace',null);}
-async function newRole(){const cap=prompt('New capability name:');if(!cap)return;await API('/api/roles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({capability:cap})});toast('Role capability added');loadSettings();}
-async function manageCutoff(){const s=await API('/api/settings');const v=prompt('Order cutoff time (HH:MM):',s.cutoff_time||'20:00');if(!v)return;await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'cutoff_time',value:v})});toast('Cutoff time saved: '+v);}
-async function newSchedule(){const mob=prompt('Customer mobile to schedule:');if(!mob)return;const cs=await API('/api/customers');const digits=mob.replace(/\D/g,'');const c=cs.find(x=>('0'+x.mobile).includes(digits)||x.mobile.includes(digits));if(!c){toast('Customer not found');return}const day=prompt('Delivery day (Monday–Saturday):',c.delivery_day);if(!day)return;await fetch('/api/customers/'+c.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({delivery_day:day})});toast(c.name+' scheduled for '+day);loadSchedules();}
+async function newSchedule(){if(!CUST.length)CUST=await API('/api/customers');document.getElementById('sc-cust').innerHTML=CUST.map(c=>`<option value="${c.id}">${c.name} · 0${c.mobile}</option>`).join('');openModal('mSchedule');}
+async function submitSchedule(){const id=document.getElementById('sc-cust').value;const day=document.getElementById('sc-day').value;if(!id){toast('Pick a customer');return}await fetch('/api/customers/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({delivery_day:day})});closeModal();toast('Schedule updated to '+day);loadSchedules();loadCustomers();}
+function newRole(){document.getElementById('ro-name').value='';openModal('mRole');}
+async function submitRole(){const cap=val('ro-name');if(!cap){toast('Enter a capability name');return}await API('/api/roles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({capability:cap})});closeModal();toast('Capability added');loadSettings();}
+async function manageCutoff(){const s=await API('/api/settings');document.getElementById('ct-time').value=s.cutoff_time||'20:00';openModal('mCutoff');}
+async function submitCutoff(){const v=val('ct-time');if(!v){toast('Enter a time');return}await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'cutoff_time',value:v})});closeModal();toast('Cutoff saved: '+v);}
 async function renewCust(id){await API('/api/customers/'+id+'/renew',{method:'POST'});toast('Plan renewed to full balance');loadCustomers();loadDashboard();}
 async function adjustCust(id,delta){await API('/api/customers/'+id+'/adjust',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({delta,reason:delta>0?'Manual credit':'Manual debit'})});toast('Balance '+(delta>0?'+':'')+delta);loadCustomers();}
 async function delCust(id){if(!confirm('Delete this customer and their deliveries?'))return;await fetch('/api/customers/'+id,{method:'DELETE'});toast('Customer deleted');loadCustomers();loadDashboard();}
@@ -1151,6 +1178,7 @@ async function delProduct(id){if(!confirm('Remove this product?'))return;await f
 // ----- init -----
 const $=s=>document.querySelector(s);
 (async function initCRM(){try{PLANS=await API('/api/plans');}catch(e){}loadDashboard();loadCustomers();})();
+setInterval(()=>fetch('/healthz').catch(()=>{}),240000); // keep the free dyno warm while a tab is open
 </script>
 </body>
 </html>

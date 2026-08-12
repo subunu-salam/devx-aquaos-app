@@ -7,7 +7,18 @@ import { db, genUniquePin, nextDateFor, today } from './db.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// keep-awake / uptime ping (point a free monitor at /healthz to avoid cold starts)
+app.get('/healthz', (req, res) => res.json({ ok: true, ts: Date.now() }));
+
+// Clean URLs: /crm /driver /customer  (and 301 the .html versions)
+const PAGES = ['crm', 'driver', 'customer'];
+PAGES.forEach(p => {
+  app.get('/' + p + '.html', (req, res) => res.redirect(301, '/' + p));
+  app.get('/' + p, (req, res) => res.sendFile(path.join(__dirname, 'public', p + '.html')));
+});
+
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 const COMPANY = process.env.COMPANY_NAME || 'PureWave Water';
 const fmtMobile = m => '0' + String(m).replace(/\D/g, '').replace(/^971/, '');
