@@ -63,6 +63,10 @@ CREATE TABLE IF NOT EXISTS batches(
 CREATE TABLE IF NOT EXISTS roles(
   id INTEGER PRIMARY KEY AUTOINCREMENT, capability TEXT, admin INTEGER, ops INTEGER, dispatch INTEGER, driver INTEGER
 );
+CREATE TABLE IF NOT EXISTS orders(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, customer_id INTEGER, items TEXT, total INTEGER,
+  status TEXT DEFAULT 'placed', created_at TEXT
+);
 `);
 
 // ---------- helpers ----------

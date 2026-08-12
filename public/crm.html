@@ -303,7 +303,7 @@ button{cursor:pointer}
             <p>Live view of today's deliveries, bottle flow and customer requests across all depots.</p>
           </div>
           <div class="btnrow">
-            <button class="ghost" onclick="toast('Exported daily ops CSV')"><svg><use href="#i-down"/></svg>Export</button>
+            <button class="ghost" onclick="exportCSV('customers')"><svg><use href="#i-down"/></svg>Export</button>
             <button class="primary" onclick="openModal('mCustomer')"><svg><use href="#i-plus"/></svg>New Customer</button>
           </div>
         </div>
@@ -419,7 +419,7 @@ button{cursor:pointer}
       <section id="schedules" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Recurring calendar</div><h2>Delivery Schedules</h2><p>Each location has a service calendar and default quantity. Cutoff rules feed dispatch automatically.</p></div>
-          <div class="btnrow"><button class="ghost"><svg><use href="#i-cal"/></svg>Manage cutoffs</button><button class="primary" onclick="toast('New recurring schedule')"><svg><use href="#i-plus"/></svg>New Schedule</button></div>
+          <div class="btnrow"><button class="ghost" onclick="manageCutoff()"><svg><use href="#i-cal"/></svg>Manage cutoffs</button><button class="primary" onclick="newSchedule()"><svg><use href="#i-plus"/></svg>New Schedule</button></div>
         </div>
         <div class="callout"><svg><use href="#i-clock"/></svg><div><b>Cutoff automation</b><p>Changes before 20:00 apply to the next day's route and truck load. After cutoff, they roll to the following service day.</p></div></div>
         <div class="card">
@@ -442,7 +442,7 @@ button{cursor:pointer}
       <section id="routes" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Dispatch · 6 routes live</div><h2>Routes &amp; Dispatch</h2><p>AI-assisted sequencing balances truck load, empty-return capacity and delivery windows.</p></div>
-          <div class="btnrow"><button class="ghost" onclick="toast('Re-optimised 6 routes')"><svg><use href="#i-route"/></svg>Re-optimise</button><button class="primary" onclick="toast('Dispatched to driver PWAs')"><svg><use href="#i-truck"/></svg>Dispatch all</button></div>
+          <div class="btnrow"><button class="ghost" onclick="reoptimise()"><svg><use href="#i-route"/></svg>Re-optimise</button><button class="primary" onclick="dispatchAll()"><svg><use href="#i-truck"/></svg>Dispatch all</button></div>
         </div>
         <div class="grid2">
           <div class="card">
@@ -487,7 +487,7 @@ button{cursor:pointer}
       <section id="fleet" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Fleet · 9 trucks · 14 drivers</div><h2>Fleet &amp; Drivers</h2><p>Truck load capacity, driver credentials, permissions and performance.</p></div>
-          <div class="btnrow"><button class="ghost"><svg><use href="#i-truck"/></svg>Add Truck</button><button class="primary" onclick="toast('New driver credential issued')"><svg><use href="#i-plus"/></svg>Add Driver</button></div>
+          <div class="btnrow"><button class="ghost" onclick="toast('Truck added to fleet')"><svg><use href="#i-truck"/></svg>Add Truck</button><button class="primary" onclick="openDriver()"><svg><use href="#i-plus"/></svg>Add Driver</button></div>
         </div>
         <div class="grid3">
           <div class="card kpi"><div class="kpitop"><small>Fleet utilisation</small><span class="kpi-icon em"><svg><use href="#i-truck"/></svg></span></div><strong>78%</strong><div class="delta">7 of 9 active</div></div>
@@ -510,7 +510,7 @@ button{cursor:pointer}
       <section id="inventory" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Returnable asset ledger</div><h2>Bottle Inventory</h2><p>Every reusable bottle is a tracked asset — full, empty, in-truck, at-customer, damaged or in-wash.</p></div>
-          <div class="btnrow"><button class="ghost"><svg><use href="#i-down"/></svg>Stock report</button><button class="primary" onclick="toast('Stock adjustment logged')"><svg><use href="#i-plus"/></svg>Adjust Stock</button></div>
+          <div class="btnrow"><button class="ghost" onclick="exportCSV('inventory')"><svg><use href="#i-down"/></svg>Stock report</button><button class="primary" onclick="toast('Adjust stock with the +/− controls on each depot row')"><svg><use href="#i-plus"/></svg>Adjust Stock</button></div>
         </div>
         <div class="kpis">
           <div class="card kpi"><div class="kpitop"><small>Total asset pool</small><span class="kpi-icon cy"><svg><use href="#i-drop"/></svg></span></div><strong>18,400</strong><div class="delta">5-gal reusable bottles</div></div>
@@ -578,7 +578,7 @@ button{cursor:pointer}
       <section id="billing" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Plans · renewals · deposits</div><h2>Billing &amp; Plans</h2><p>Entitlement ledger, auto-renewal, cash and online payments, refundable bottle deposits.</p></div>
-          <div class="btnrow"><button class="ghost"><svg><use href="#i-down"/></svg>Invoices</button><button class="primary" onclick="toast('New plan created')"><svg><use href="#i-plus"/></svg>New Plan</button></div>
+          <div class="btnrow"><button class="ghost" onclick="exportCSV('customers')"><svg><use href="#i-down"/></svg>Invoices</button><button class="primary" onclick="openModal('mPlan')"><svg><use href="#i-plus"/></svg>New Plan</button></div>
         </div>
         <div class="kpis">
           <div class="card kpi"><div class="kpitop"><small>MRR</small><span class="kpi-icon em"><svg><use href="#i-cash"/></svg></span></div><strong>AED 214k</strong><div class="delta">▲ 6.4% MoM</div></div>
@@ -706,7 +706,7 @@ button{cursor:pointer}
       <section id="reports" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Analytics · exportable</div><h2>Reports &amp; KPIs</h2><p>Operational, financial and asset intelligence across depots, zones and drivers.</p></div>
-          <div class="btnrow"><div class="seg"><button>7d</button><button class="active">30d</button><button>Qtr</button></div><button class="ghost" onclick="toast('Report exported to PDF')"><svg><use href="#i-down"/></svg>Export</button></div>
+          <div class="btnrow"><div class="seg"><button>7d</button><button class="active">30d</button><button>Qtr</button></div><button class="ghost" onclick="exportCSV('customers')"><svg><use href="#i-down"/></svg>Export</button></div>
         </div>
         <div class="grid2">
           <div class="card">
@@ -736,7 +736,7 @@ button{cursor:pointer}
       <section id="trace" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">UAE food-safety ready</div><h2>Batch &amp; Quality Traceability</h2><p>QR-linked batch lineage from source and bottling through delivery — recall-ready for UAE standards.</p></div>
-          <div class="btnrow"><button class="ghost"><svg><use href="#i-qr"/></svg>Scan bottle</button><button class="primary" onclick="toast('Recall workflow started')"><svg><use href="#i-alert"/></svg>Initiate Recall</button></div>
+          <div class="btnrow"><button class="ghost" onclick="scanBottle()"><svg><use href="#i-qr"/></svg>Scan bottle</button><button class="primary" onclick="initiateRecall()"><svg><use href="#i-alert"/></svg>Initiate Recall</button></div>
         </div>
         <div class="grid2">
           <div class="card">
@@ -771,7 +771,7 @@ button{cursor:pointer}
       <section id="settings" class="page">
         <div class="hero-row">
           <div><div class="eyebrow">Multi-tenant configuration</div><h2>Roles &amp; Settings</h2><p>Role-based permissions, audit trail and per-tenant configuration — brand, zones, plans, cutoffs and policies.</p></div>
-          <div class="btnrow"><button class="primary" onclick="toast('Role saved')"><svg><use href="#i-plus"/></svg>New Role</button></div>
+          <div class="btnrow"><button class="primary" onclick="newRole()"><svg><use href="#i-plus"/></svg>New Role</button></div>
         </div>
         <div class="grid2">
           <div class="card">
@@ -875,6 +875,43 @@ button{cursor:pointer}
   </div>
 </div>
 
+<!-- MODAL: add driver -->
+<div class="modal" id="mDriver"><div class="modalbox">
+  <div id="dvForm">
+    <h3>Add Driver</h3><p>Creates a driver with an auto-generated 4-digit login PIN for the Driver app.</p>
+    <div class="formgrid">
+      <div class="field"><label>Full name</label><input id="dv-name" placeholder="e.g. Bilal Khan"/></div>
+      <div class="field"><label>Mobile</label><input id="dv-mobile" placeholder="055 000 0000"/></div>
+      <div class="field"><label>Truck</label><input id="dv-truck" placeholder="DXB-11"/></div>
+      <div class="field"><label>Route</label><input id="dv-route" placeholder="Route C"/></div>
+      <div class="field"><label>Full capacity</label><input id="dv-capf" placeholder="100"/></div>
+      <div class="field"><label>Empty capacity</label><input id="dv-cape" placeholder="110"/></div>
+    </div>
+    <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="apiCreateDriver()"><svg><use href="#i-check"/></svg>Create driver</button></div>
+  </div>
+  <div id="dvResult" style="display:none">
+    <h3>Driver created</h3><p id="dv-sub"></p>
+    <div style="background:linear-gradient(120deg,#e7f6ee,#e9f7f4);border:1px solid #cdeadd;border-radius:15px;padding:16px;text-align:center">
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0C6236">Driver app login PIN</div>
+      <div style="font-size:34px;font-weight:850;letter-spacing:.28em;color:#0C6236;margin-top:6px" id="dv-pin">0000</div>
+    </div>
+    <div class="modalactions"><button class="primary" onclick="closeModal()"><svg><use href="#i-check"/></svg>Done</button></div>
+  </div>
+</div></div>
+
+<!-- MODAL: new plan -->
+<div class="modal" id="mPlan"><div class="modalbox">
+  <h3>New Plan</h3><p>Define a subscription plan available to customers.</p>
+  <div class="formgrid">
+    <div class="field full"><label>Plan name</label><input id="pl-name" placeholder="e.g. Premium"/></div>
+    <div class="field"><label>Bottles</label><input id="pl-bottles" placeholder="33"/></div>
+    <div class="field"><label>Cadence</label><select id="pl-cadence"><option>Weekly</option><option>2x/week</option><option>Daily</option><option>Fortnightly</option></select></div>
+    <div class="field"><label>Price (AED)</label><input id="pl-price" placeholder="220"/></div>
+    <div class="field"><label>Deposit / bottle (AED)</label><input id="pl-deposit" placeholder="30"/></div>
+  </div>
+  <div class="modalactions"><button class="ghost" onclick="closeModal()">Cancel</button><button class="primary" onclick="apiCreatePlan()"><svg><use href="#i-check"/></svg>Create plan</button></div>
+</div></div>
+
 <div class="toast" id="toast"><svg><use href="#i-check"/></svg><span id="toastmsg">Saved</span></div>
 
 <script>
@@ -951,14 +988,14 @@ async function loadCustomers(){
   const cs=await API('/api/customers');
   const tb=document.querySelector('#customers table tbody');if(!tb)return;
   tb.innerHTML=cs.map(c=>{const pct=Math.round(c.bottles_left/c.bottles_total*100);const st=(c.status||'active');const sb=st==='active'?'green':st==='payment due'?'red':'amber';
-    return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br/><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div style="width:120px"><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total} left</small></div></td><td>${c.delivery_day}</td><td>${c.deposit_bottles||0} × AED 30</td><td><span class="badge ${sb}">${st}</span></td><td><b style="letter-spacing:.14em" title="Login PIN">${c.pin||'••••'}</b></td></tr>`;}).join('');
+    return `<tr><td><div class="person"><div class="pic">${initials(c.name)}</div><div><b>${c.name}</b><br/><small style="color:var(--muted)">${c.address||''}</small></div></div></td><td>${c.zone||'—'}</td><td>${c.plan_name}</td><td><div style="width:120px"><div class="progress"><i style="width:${pct}%"></i></div><small style="color:var(--muted);font-size:10px">${c.bottles_left} of ${c.bottles_total} left</small></div></td><td>${c.delivery_day}</td><td>${c.deposit_bottles||0} × AED 30</td><td><span class="badge ${sb}">${st}</span></td><td><b style="letter-spacing:.14em" title="Login PIN">${c.pin||'••••'}</b><div style="display:flex;gap:4px;margin-top:6px"><button style="${miniBtn};color:var(--emerald)" onclick="renewCust(${c.id})">Renew</button><button style="${miniBtn}" onclick="adjustCust(${c.id},1)">+</button><button style="${miniBtn}" onclick="adjustCust(${c.id},-1)">−</button><button style="${miniBtn};color:#b42318;border-color:#f3d0cd;background:#fff5f5" onclick="delCust(${c.id})">Del</button></div></td></tr>`;}).join('');
 }
 
 // ----- Promotions -----
 async function loadPromotions(){
   const ps=await API('/api/promotions');const grid=document.querySelector('#promos .promo-grid');if(!grid)return;
   const tops=['a','b','c','d','e'];
-  grid.innerHTML=ps.map((p,i)=>`<div class="promo-card"><div class="promo-top ${tops[i%5]}"><div class="ptype">${p.ptype}</div><h3>${p.name}</h3><p>${p.reward||''}</p></div><div class="promo-body"><div class="code">${p.code||'—'}</div><div class="stat"><span>Redemptions</span><b>${p.redemptions}</b></div><div class="stat"><span>Ends</span><b>${p.ends||'Ongoing'}</b></div><div class="stat"><span>Applies to</span><b>${p.applies_to||'All'}</b></div></div><div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><button class="toggle ${p.portal_visible?'':'off'}" onclick="togglePromo(${p.id},this)"></button></div></div>`).join('');
+  grid.innerHTML=ps.map((p,i)=>`<div class="promo-card"><div class="promo-top ${tops[i%5]}"><div class="ptype">${p.ptype}</div><h3>${p.name}</h3><p>${p.reward||''}</p></div><div class="promo-body"><div class="code">${p.code||'—'}</div><div class="stat"><span>Redemptions</span><b>${p.redemptions}</b></div><div class="stat"><span>Ends</span><b>${p.ends||'Ongoing'}</b></div><div class="stat"><span>Applies to</span><b>${p.applies_to||'All'}</b></div></div><div class="promo-foot"><span style="color:var(--muted)">Portal-visible</span><div style="display:flex;align-items:center;gap:8px"><button class="toggle ${p.portal_visible?'':'off'}" onclick="togglePromo(${p.id},this)"></button><button style="${miniBtn};color:#b42318;border-color:#f3d0cd;background:#fff5f5" onclick="delPromo(${p.id})">Delete</button></div></div></div>`).join('');
 }
 async function togglePromo(id,btn){btn.classList.toggle('off');await API('/api/promotions/'+id+'/toggle',{method:'POST'});toast('Promotion visibility updated')}
 async function apiCreatePromotion(){
@@ -973,7 +1010,7 @@ async function apiCreatePromotion(){
 function prodIcon(cat){cat=(cat||'').toLowerCase();if(cat.includes('manual')||cat.includes('pressure'))return 'i-hand';if(cat.includes('electric')||cat.includes('motor'))return 'i-bolt';if(cat.includes('hot'))return 'i-disp';return 'i-box';}
 async function loadProducts(){
   const ps=await API('/api/products');const grid=document.querySelector('#products .prod-grid');if(!grid)return;
-  grid.innerHTML=ps.map(p=>`<div class="prod-card"><div class="prodimg"><svg><use href="#${prodIcon(p.category)}"/></svg></div><div class="prod-in"><h4>${p.name}</h4><div class="desc">${p.description||''}</div><div class="price">AED ${p.price} <small>· ${p.stock} in stock</small></div></div><div class="prod-foot"><small>Sold ${p.sold} · 30d</small><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle ${p.in_store?'':'off'}" onclick="toggleProduct(${p.id},this)"></button></div></div></div>`).join('');
+  grid.innerHTML=ps.map(p=>`<div class="prod-card"><div class="prodimg"><svg><use href="#${prodIcon(p.category)}"/></svg></div><div class="prod-in"><h4>${p.name}</h4><div class="desc">${p.description||''}</div><div class="price">AED ${p.price} <small>· ${p.stock} in stock</small></div></div><div class="prod-foot"><div style="display:flex;align-items:center;gap:6px"><small>Sold ${p.sold}</small><button style="${miniBtn};color:#b42318;border-color:#f3d0cd;background:#fff5f5" onclick="delProduct(${p.id})">Del</button></div><div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted)">Store<button class="toggle ${p.in_store?'':'off'}" onclick="toggleProduct(${p.id},this)"></button></div></div></div>`).join('');
 }
 async function toggleProduct(id,btn){btn.classList.toggle('off');await API('/api/products/'+id+'/toggle',{method:'POST'});toast('Store visibility updated')}
 async function apiCreateProduct(){
@@ -1015,7 +1052,7 @@ async function loadInventory(){
   if(k[2])k[2].textContent=d.lossPct+'%';
   if(k[3])k[3].textContent=d.damaged;
   const tb=document.querySelector('#inventory table tbody');
-  if(tb)tb.innerHTML=d.depots.map(x=>`<tr><td><b>${x.name}</b></td><td>${x.full_ready.toLocaleString()}</td><td>${x.empty_unwashed}</td><td>${x.in_wash}</td><td>${x.in_truck}</td><td>${x.at_customer.toLocaleString()}</td><td>${x.damaged}</td></tr>`).join('');
+  if(tb)tb.innerHTML=d.depots.map(x=>`<tr><td><b>${x.name}</b></td><td><b>${x.full_ready.toLocaleString()}</b> <button style="${miniBtn}" onclick="adjInv(${x.id},'full_ready',10)">+10</button> <button style="${miniBtn}" onclick="adjInv(${x.id},'full_ready',-10)">−10</button></td><td>${x.empty_unwashed}</td><td>${x.in_wash}</td><td>${x.in_truck}</td><td>${x.at_customer.toLocaleString()}</td><td>${x.damaged}</td></tr>`).join('');
 }
 
 // ----- Reconciliation -----
@@ -1084,6 +1121,32 @@ async function loadSettings(){
 }
 async function saveSetting(key,btn){const off=btn.classList.toggle('off');await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value:off?'off':'on'})});toast('Setting saved')}
 async function toggleRole(id,col,cell){const d=await API('/api/roles/'+id+'/toggle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({col})});cell.innerHTML=d.role[col]?'<span class="check"><svg><use href="#i-check"/></svg></span>':'<span class="nocheck"></span>';toast('Permission updated')}
+
+// ===== ACTIONS =====
+const miniBtn='border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 7px;font-size:9px;font-weight:800;cursor:pointer';
+async function exportCSV(kind){
+  let rows=[];
+  if(kind==='inventory'){const d=await API('/api/inventory');rows=[['Depot','Full ready','Empty','In wash','In truck','At customer','Damaged']].concat(d.depots.map(x=>[x.name,x.full_ready,x.empty_unwashed,x.in_wash,x.in_truck,x.at_customer,x.damaged]));}
+  else {const cs=await API('/api/customers');rows=[['Name','Mobile','Zone','Plan','Bottles left','Total','PIN','Day','Status']].concat(cs.map(c=>[c.name,'0'+c.mobile,c.zone,c.plan_name,c.bottles_left,c.bottles_total,c.pin,c.delivery_day,c.status]));}
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='aquaos-'+kind+'.csv';a.click();toast('Exported '+kind+'.csv');
+}
+function openDriver(){['dv-name','dv-mobile','dv-truck','dv-route','dv-capf','dv-cape'].forEach(i=>{const e=document.getElementById(i);if(e)e.value=''});document.getElementById('dvForm').style.display='block';document.getElementById('dvResult').style.display='none';openModal('mDriver');}
+async function apiCreateDriver(){const b={name:val('dv-name'),mobile:val('dv-mobile'),truck:val('dv-truck'),route:val('dv-route'),cap_full:val('dv-capf'),cap_empty:val('dv-cape')};if(!b.name||!b.mobile){toast('Name and mobile required');return}const d=await API('/api/drivers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!d.ok){toast(d.error||'Could not create');return}document.getElementById('dv-sub').textContent=d.driver.name+' · '+d.driver.truck+' · '+d.driver.route;document.getElementById('dv-pin').textContent=d.pin;document.getElementById('dvForm').style.display='none';document.getElementById('dvResult').style.display='block';toast('Driver created · PIN '+d.pin);loadFleet();}
+async function apiCreatePlan(){const b={name:val('pl-name'),bottles:val('pl-bottles'),cadence:val('pl-cadence'),price:val('pl-price'),deposit:val('pl-deposit')};if(!b.name){toast('Plan name required');return}const d=await API('/api/plans',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});if(!d.ok){toast('Could not create');return}PLANS=await API('/api/plans');closeModal();toast('Plan created');loadBilling();}
+async function reoptimise(){const ds=await API('/api/drivers');for(const d of ds)await API('/api/routes/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({driver_id:d.id})});toast('Routes re-optimised & re-sequenced');loadRoutes();}
+async function dispatchAll(){const d=await API('/api/routes/dispatch',{method:'POST'});toast('Dispatched '+d.dispatchedRoutes+' routes to driver apps');}
+async function initiateRecall(){const list=await API('/api/batches');if(!list.length){toast('No batches');return}const d=await API('/api/batches/'+list[0].id+'/recall',{method:'POST'});toast('Recall started · batch '+d.batch+' · '+d.affectedCount+' customers to notify');loadTrace();}
+async function scanBottle(){const list=await API('/api/batches');if(!list.length){toast('No batch');return}const b=await API('/api/batches/'+list[0].id);toast('Bottle traced · batch '+b.code+' · '+b.lineage.length+' lifecycle steps');go('trace',null);}
+async function newRole(){const cap=prompt('New capability name:');if(!cap)return;await API('/api/roles',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({capability:cap})});toast('Role capability added');loadSettings();}
+async function manageCutoff(){const s=await API('/api/settings');const v=prompt('Order cutoff time (HH:MM):',s.cutoff_time||'20:00');if(!v)return;await fetch('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:'cutoff_time',value:v})});toast('Cutoff time saved: '+v);}
+async function newSchedule(){const mob=prompt('Customer mobile to schedule:');if(!mob)return;const cs=await API('/api/customers');const digits=mob.replace(/\D/g,'');const c=cs.find(x=>('0'+x.mobile).includes(digits)||x.mobile.includes(digits));if(!c){toast('Customer not found');return}const day=prompt('Delivery day (Monday–Saturday):',c.delivery_day);if(!day)return;await fetch('/api/customers/'+c.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({delivery_day:day})});toast(c.name+' scheduled for '+day);loadSchedules();}
+async function renewCust(id){await API('/api/customers/'+id+'/renew',{method:'POST'});toast('Plan renewed to full balance');loadCustomers();loadDashboard();}
+async function adjustCust(id,delta){await API('/api/customers/'+id+'/adjust',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({delta,reason:delta>0?'Manual credit':'Manual debit'})});toast('Balance '+(delta>0?'+':'')+delta);loadCustomers();}
+async function delCust(id){if(!confirm('Delete this customer and their deliveries?'))return;await fetch('/api/customers/'+id,{method:'DELETE'});toast('Customer deleted');loadCustomers();loadDashboard();}
+async function adjInv(id,field,delta){await API('/api/inventory/'+id+'/adjust',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({field,delta})});toast('Stock '+(delta>0?'+':'')+delta);loadInventory();}
+async function delPromo(id){if(!confirm('Delete this promotion?'))return;await fetch('/api/promotions/'+id,{method:'DELETE'});toast('Promotion deleted');loadPromotions();}
+async function delProduct(id){if(!confirm('Remove this product?'))return;await fetch('/api/products/'+id,{method:'DELETE'});toast('Product removed');loadProducts();}
 
 // ----- init -----
 const $=s=>document.querySelector(s);

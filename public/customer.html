@@ -100,12 +100,14 @@ body{min-height:100vh;min-height:100dvh;background:#e7edf2;display:flex;justify-
         <div class="next"><div class="ic"><svg><use href="#i-drop"/></svg></div><div class="t"><b id="ndDate">—</b><small id="ndQty"></small></div></div>
         <div style="margin-top:13px" class="quick"><button class="btn blue" style="padding:12px" onclick="openReq()"><svg><use href="#i-add"/></svg>Change quantity</button><button class="btn outline" style="padding:12px" onclick="openSkip()"><svg><use href="#i-plane"/></svg>Skip</button></div>
       </div></div>
+      <div id="promoWrap"></div>
       <div class="lbl2">Quick actions</div>
       <div class="quick">
         <button class="qbtn a" onclick="openReq()"><div class="ic"><svg><use href="#i-add"/></svg></div><div><b>Extra bottles</b><small>Add to next delivery</small></div></button>
         <button class="qbtn c" onclick="openSkip()"><div class="ic"><svg><use href="#i-plane"/></svg></div><div><b>Skip / vacation</b><small>Pause a delivery</small></div></button>
         <button class="qbtn d" onclick="loadHistory();showTab('s-history')"><div class="ic"><svg><use href="#i-hist"/></svg></div><div><b>Proof history</b><small>Past deliveries</small></div></button>
-        <button class="qbtn b" onclick="toast('Renewal — connect payment gateway')"><div class="ic"><svg><use href="#i-card"/></svg></div><div><b>Renew plan</b><small>Pay online</small></div></button>
+        <button class="qbtn b" onclick="doRenew()"><div class="ic"><svg><use href="#i-card"/></svg></div><div><b>Renew plan</b><small>Reset balance</small></div></button>
+        <button class="qbtn a" onclick="openShop()"><div class="ic"><svg><use href="#i-add"/></svg></div><div><b>Shop add-ons</b><small>Dispensers &amp; more</small></div></button>
       </div>
       <div class="lbl2">Recent deliveries</div>
       <div class="card"><div class="in" id="recent" style="padding-top:6px;padding-bottom:6px"></div></div>
@@ -136,13 +138,21 @@ body{min-height:100vh;min-height:100dvh;background:#e7edf2;display:flex;justify-
     <div class="apphead" style="padding-bottom:16px"><div class="top"><h2 style="margin:0;font-size:20px">Delivery history</h2></div></div>
     <div class="body"><div class="card"><div class="in" id="histList" style="padding-top:6px;padding-bottom:6px"></div></div></div>
   </div>
+  <!-- SHOP -->
+  <div class="screen" id="s-shop">
+    <div class="apphead" style="padding-bottom:16px"><div class="top"><h2 style="margin:0;font-size:20px">Shop</h2></div><p style="margin-top:6px;font-size:11.5px;color:#d8eef9">Delivered free with your next water delivery</p></div>
+    <div class="body"><div id="shopList"></div>
+      <div class="summary" id="cartBar" style="display:none"><div class="kv"><span class="m"><b id="cartCount">0 items</b></span><b id="cartTotal">AED 0</b></div><button class="btn primary" onclick="checkoutShop()"><svg><use href="#i-check"/></svg>Add to my delivery</button></div>
+      <div style="height:8px"></div>
+    </div>
+  </div>
   <!-- SUCCESS -->
   <div class="screen" id="s-ok">
     <div class="body" style="text-align:center;padding-top:8px"><div class="success"><svg><use href="#i-check"/></svg></div><h2 id="okT" style="margin:0 0 6px;font-size:22px">Done</h2><p id="okP" style="color:var(--muted);font-size:12.5px;margin:0 0 20px"></p><button class="btn blue" onclick="loadHome();showTab('s-home')"><svg><use href="#i-home"/></svg>Back to home</button></div>
   </div>
   <div class="tabbar" id="tabbar" style="display:none">
     <button class="tab active" id="tb-h" onclick="showTab('s-home')"><svg><use href="#i-home"/></svg>Home</button>
-    <button class="tab" onclick="openReq()"><svg><use href="#i-add"/></svg>Request</button>
+    <button class="tab" onclick="openShop()"><svg><use href="#i-add"/></svg>Shop</button>
     <button class="tab" onclick="loadHistory();showTab('s-history')"><svg><use href="#i-hist"/></svg>History</button>
     <button class="tab" onclick="signOut()"><svg><use href="#i-user"/></svg>Sign out</button>
   </div>
@@ -165,8 +175,16 @@ async function loadHome(){
   $('#cbal').textContent=me.bottles_left;$('#cplan').textContent='of '+me.bottles_total+' · '+me.plan_name;$('#cbar').style.width=Math.round(me.bottles_left/me.bottles_total*100)+'%';
   if(next){$('#ndDate').textContent=fmtDate(next.scheduled_date);$('#ndQty').textContent=next.qty_requested+' bottle(s) · '+me.delivery_day+' window';$('#skipWhen').textContent=fmtDate(next.scheduled_date);rqv=next.qty_requested;}
   else{$('#ndDate').textContent='No delivery scheduled';$('#ndQty').textContent='';}
-  loadRecent();
+  loadRecent();loadPromo();
 }
+async function loadPromo(){const ps=await (await fetch('/api/store/promotions')).json();const w=$('#promoWrap');if(!ps.length){w.innerHTML='';return}const p=ps[0];w.innerHTML=`<div class="lbl2">Offer for you</div><div style="background:linear-gradient(135deg,#7a52e0,#b06be6);border-radius:16px;padding:15px;color:#fff;margin-bottom:12px;box-shadow:0 10px 24px rgba(122,82,224,.25)"><b style="font-size:13.5px">${p.name}</b><div style="font-size:11px;opacity:.92;margin-top:3px">${p.reward||''} · code ${p.code}</div></div>`}
+let cart={};
+async function doRenew(){const d=await (await fetch('/api/customer/'+me.id+'/renew',{method:'POST'})).json();if(d.ok){$('#okT').textContent='Plan renewed';$('#okP').textContent='Your '+d.customer.plan_name+' plan is topped up to '+d.customer.bottles_total+' bottles.';showTab('s-ok')}}
+async function openShop(){cart={};await loadShop();showTab('s-shop')}
+async function loadShop(){const ps=await (await fetch('/api/store/products')).json();$('#shopList').innerHTML=ps.map(p=>`<div class="card" style="margin-bottom:10px"><div class="in" style="display:flex;align-items:center;gap:12px"><div style="flex:1"><b style="font-size:12.5px">${p.name}</b><div style="font-size:10.5px;color:var(--muted);margin-top:2px">${(p.description||'').slice(0,70)}</div><div style="font-size:13px;font-weight:850;margin-top:5px">AED ${p.price}</div></div><button class="btn primary" style="width:auto;padding:10px 13px" onclick="addCart(${p.id},${p.price},'${(p.name||'').replace(/'/g,'')}')">Add</button></div></div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Store is empty</div>';updateCart()}
+function addCart(id,price,name){cart[id]=cart[id]||{id,price,name,qty:0};cart[id].qty++;updateCart();toast('Added '+name)}
+function updateCart(){const items=Object.values(cart);const n=items.reduce((a,i)=>a+i.qty,0);const tot=items.reduce((a,i)=>a+i.qty*i.price,0);$('#cartBar').style.display=n?'block':'none';$('#cartCount').textContent=n+' item'+(n===1?'':'s');$('#cartTotal').textContent='AED '+tot}
+async function checkoutShop(){const items=Object.values(cart);if(!items.length){toast('Add an item first');return}const d=await (await fetch('/api/customer/'+me.id+'/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items})})).json();cart={};updateCart();$('#okT').textContent='Added to your delivery';$('#okP').textContent='Your items (AED '+d.total+') arrive free with your next water delivery. Order #'+d.orderId+'.';showTab('s-ok')}
 async function loadRecent(){const h=await (await fetch('/api/customer/'+me.id+'/history')).json();$('#recent').innerHTML=h.slice(0,3).map(x=>histRow(x)).join('')||'<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No deliveries yet</div>'}
 async function loadHistory(){const h=await (await fetch('/api/customer/'+me.id+'/history')).json();$('#histList').innerHTML=h.map(x=>histRow(x)).join('')||'<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No deliveries yet</div>'}
 function histRow(x){return `<div class="hist"><div class="ph"></div><div class="t"><b>${x.qty_delivered} bottles delivered</b><small>${(x.completed_at||x.scheduled_date||'').replace('T',' ').slice(0,16)} · ${x.empties_collected} empties collected</small></div><span class="badge green">${x.proof?'Proof':'Done'}</span></div>`}

@@ -293,6 +293,134 @@ app.post('/api/exception/:id/resolve', (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------------- CUSTOMER ACTIONS (edit / adjust / renew / delete) ----------------
+app.patch('/api/customers/:id', (req, res) => {
+  const c = db.prepare('SELECT * FROM customers WHERE id=?').get(req.params.id);
+  if (!c) return res.status(404).json({ ok: false });
+  const b = req.body || {};
+  let plan = null;
+  if (b.plan_id) plan = db.prepare('SELECT * FROM plans WHERE id=?').get(b.plan_id);
+  db.prepare(`UPDATE customers SET name=?, zone=?, address=?, delivery_day=?, status=?, plan_id=?, plan_name=?, bottles_total=? WHERE id=?`)
+    .run(b.name ?? c.name, b.zone ?? c.zone, b.address ?? c.address, b.delivery_day ?? c.delivery_day, b.status ?? c.status,
+      plan ? plan.id : c.plan_id, plan ? plan.name : c.plan_name, plan ? plan.bottles : c.bottles_total, c.id);
+  res.json({ ok: true, customer: publicCustomer(db.prepare('SELECT * FROM customers WHERE id=?').get(c.id)) });
+});
+app.post('/api/customers/:id/adjust', (req, res) => {
+  const c = db.prepare('SELECT * FROM customers WHERE id=?').get(req.params.id);
+  if (!c) return res.status(404).json({ ok: false });
+  const delta = Math.trunc(Number(req.body.delta) || 0);
+  db.prepare('UPDATE customers SET bottles_left = MAX(0, bottles_left + ?) WHERE id=?').run(delta, c.id);
+  db.prepare('INSERT INTO ledger(customer_id,delta,reason,created_at) VALUES(?,?,?,?)')
+    .run(c.id, delta, req.body.reason || 'Manual adjustment', new Date().toISOString());
+  res.json({ ok: true, bottles_left: db.prepare('SELECT bottles_left FROM customers WHERE id=?').get(c.id).bottles_left });
+});
+app.post('/api/customers/:id/renew', (req, res) => {
+  const c = db.prepare('SELECT * FROM customers WHERE id=?').get(req.params.id);
+  if (!c) return res.status(404).json({ ok: false });
+  db.prepare("UPDATE customers SET bottles_left = bottles_total, status='active' WHERE id=?").run(c.id);
+  db.prepare('INSERT INTO ledger(customer_id,delta,reason,created_at) VALUES(?,?,?,?)')
+    .run(c.id, c.bottles_total, `Plan renewed (${c.plan_name})`, new Date().toISOString());
+  res.json({ ok: true, customer: publicCustomer(db.prepare('SELECT * FROM customers WHERE id=?').get(c.id)) });
+});
+app.delete('/api/customers/:id', (req, res) => {
+  db.prepare('DELETE FROM customers WHERE id=?').run(req.params.id);
+  db.prepare('DELETE FROM deliveries WHERE customer_id=?').run(req.params.id);
+  res.json({ ok: true });
+});
+
+// ---------------- DRIVERS (create) ----------------
+app.post('/api/drivers', (req, res) => {
+  const b = req.body || {};
+  if (!b.name || !b.mobile) return res.status(400).json({ ok: false, error: 'Name and mobile required' });
+  const mobile = String(b.mobile).replace(/\D/g, '').replace(/^0/, '');
+  const pin = String(Math.floor(1000 + Math.random() * 9000));
+  try {
+    const info = db.prepare('INSERT INTO drivers(name,mobile,pin,truck,route,cap_full,cap_empty) VALUES(?,?,?,?,?,?,?)')
+      .run(b.name, mobile, pin, b.truck || 'Unassigned', b.route || 'Unassigned', Number(b.cap_full) || 100, Number(b.cap_empty) || 110);
+    res.json({ ok: true, driver: db.prepare('SELECT * FROM drivers WHERE id=?').get(info.lastInsertRowid), pin });
+  } catch (e) { res.status(409).json({ ok: false, error: 'A driver with that mobile already exists.' }); }
+});
+
+// ---------------- PLANS (create) ----------------
+app.post('/api/plans', (req, res) => {
+  const b = req.body || {};
+  if (!b.name) return res.status(400).json({ ok: false, error: 'Name required' });
+  const info = db.prepare('INSERT INTO plans(name,bottles,cadence,price,deposit) VALUES(?,?,?,?,?)')
+    .run(b.name, Number(b.bottles) || 0, b.cadence || 'Weekly', Number(b.price) || 0, Number(b.deposit) || 30);
+  res.json({ ok: true, plan: db.prepare('SELECT * FROM plans WHERE id=?').get(info.lastInsertRowid) });
+});
+
+// ---------------- INVENTORY (adjust) ----------------
+app.post('/api/inventory/:id/adjust', (req, res) => {
+  const d = db.prepare('SELECT * FROM depots WHERE id=?').get(req.params.id);
+  if (!d) return res.status(404).json({ ok: false });
+  const f = req.body.field, delta = Math.trunc(Number(req.body.delta) || 0);
+  if (!['full_ready','empty_unwashed','in_wash','in_truck','at_customer','damaged'].includes(f)) return res.status(400).json({ ok: false });
+  db.prepare(`UPDATE depots SET ${f} = MAX(0, ${f} + ?) WHERE id=?`).run(delta, d.id);
+  res.json({ ok: true, depot: db.prepare('SELECT * FROM depots WHERE id=?').get(d.id) });
+});
+
+// ---------------- ROUTES (dispatch / reorder) ----------------
+app.post('/api/routes/dispatch', (req, res) => {
+  const stamp = new Date().toISOString();
+  db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run('last_dispatch', stamp);
+  const routes = db.prepare('SELECT COUNT(DISTINCT route) c FROM drivers').get().c;
+  res.json({ ok: true, dispatchedRoutes: routes, at: stamp });
+});
+app.post('/api/routes/reorder', (req, res) => {
+  const driverId = req.body.driver_id;
+  const stops = db.prepare("SELECT * FROM deliveries WHERE driver_id=? AND scheduled_date=? ORDER BY seq").all(driverId, today());
+  // simple "optimise": pending first, then keep order — re-sequence 1..n
+  const ordered = [...stops.filter(s => s.status === 'pending'), ...stops.filter(s => s.status !== 'pending')];
+  ordered.forEach((s, i) => db.prepare('UPDATE deliveries SET seq=? WHERE id=?').run(i + 1, s.id));
+  res.json({ ok: true, stops: ordered.length });
+});
+
+// ---------------- RECONCILIATION (approve) ----------------
+app.post('/api/reconciliation/approve', (req, res) => {
+  const stamp = new Date().toISOString();
+  db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run('recon_approved_' + (req.body.route || 'all'), stamp);
+  res.json({ ok: true, at: stamp });
+});
+
+// ---------------- TRACEABILITY (recall) ----------------
+app.post('/api/batches/:id/recall', (req, res) => {
+  const b = db.prepare('SELECT * FROM batches WHERE id=?').get(req.params.id);
+  if (!b) return res.status(404).json({ ok: false });
+  db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run('recall_' + b.id, new Date().toISOString());
+  const affected = db.prepare("SELECT DISTINCT c.id, c.name, c.address FROM deliveries d JOIN customers c ON c.id=d.customer_id WHERE d.status='done'").all();
+  res.json({ ok: true, batch: b.code, affectedCount: affected.length, affected });
+});
+
+// ---------------- ROLES (create) ----------------
+app.post('/api/roles', (req, res) => {
+  if (!req.body.capability) return res.status(400).json({ ok: false });
+  const info = db.prepare('INSERT INTO roles(capability,admin,ops,dispatch,driver) VALUES(?,1,0,0,0)').run(req.body.capability);
+  res.json({ ok: true, role: db.prepare('SELECT * FROM roles WHERE id=?').get(info.lastInsertRowid) });
+});
+
+// ---------------- PROMO / PRODUCT delete ----------------
+app.delete('/api/promotions/:id', (req, res) => { db.prepare('DELETE FROM promotions WHERE id=?').run(req.params.id); res.json({ ok: true }); });
+app.delete('/api/products/:id', (req, res) => { db.prepare('DELETE FROM products WHERE id=?').run(req.params.id); res.json({ ok: true }); });
+
+// ---------------- CUSTOMER STORE & ORDERS ----------------
+app.get('/api/store/products', (req, res) => res.json(db.prepare('SELECT * FROM products WHERE in_store=1 ORDER BY id').all()));
+app.get('/api/store/promotions', (req, res) => res.json(db.prepare('SELECT * FROM promotions WHERE portal_visible=1 ORDER BY id').all()));
+app.post('/api/customer/:id/order', (req, res) => {
+  const c = db.prepare('SELECT * FROM customers WHERE id=?').get(req.params.id);
+  if (!c) return res.status(404).json({ ok: false });
+  const items = req.body.items || [];
+  const total = items.reduce((a, i) => a + (Number(i.price) || 0) * (Number(i.qty) || 1), 0);
+  const info = db.prepare('INSERT INTO orders(customer_id,items,total,created_at) VALUES(?,?,?,?)')
+    .run(c.id, JSON.stringify(items), total, new Date().toISOString());
+  // decrement product stock
+  items.forEach(i => { if (i.id) db.prepare('UPDATE products SET stock=MAX(0,stock-?), sold=sold+? WHERE id=?').run(i.qty || 1, i.qty || 1, i.id); });
+  res.json({ ok: true, orderId: info.lastInsertRowid, total });
+});
+app.get('/api/orders', (req, res) => {
+  res.json(db.prepare('SELECT o.*, c.name customer FROM orders o JOIN customers c ON c.id=o.customer_id ORDER BY o.id DESC').all().map(o => ({ ...o, items: JSON.parse(o.items || '[]') })));
+});
+
 function publicCustomer(c) {
   return { id: c.id, name: c.name, mobile: c.mobile, zone: c.zone, address: c.address,
     plan_name: c.plan_name, bottles_total: c.bottles_total, bottles_left: c.bottles_left,
